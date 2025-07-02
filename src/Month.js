@@ -47,8 +47,7 @@ class MonthView extends React.Component {
       date,
       monthEventRowHeight,
       state,
-      localizer.neq(date, state.date, 'month'),
-      this.containerRef.current
+      localizer.neq(date, state.date, 'month')
     )
 
     const rowLimit = monthEventRowHeight

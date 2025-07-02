@@ -48276,8 +48276,7 @@
               date,
               monthEventRowHeight,
               state,
-              localizer.neq(date, state.date, 'month'),
-              this.containerRef.current
+              localizer.neq(date, state.date, 'month')
             )
             var rowLimit = monthEventRowHeight
               ? this.calculateRowLimitFromProp(monthEventRowHeight)
