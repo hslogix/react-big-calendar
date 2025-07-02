@@ -38,16 +38,30 @@ class MonthView extends React.Component {
     console.info('MonthView constructor', this.props, this.state)
   }
 
-  static getDerivedStateFromProps({ date, localizer }, state) {
+  static getDerivedStateFromProps(
+    { date, localizer, monthEventRowHeight },
+    state
+  ) {
     console.info(
       'MonthView getDerivedStateFromProps',
       date,
+      monthEventRowHeight,
       state,
-      localizer.neq(date, state.date, 'month')
+      localizer.neq(date, state.date, 'month'),
+      this.containerRef.current
     )
+
+    const rowLimit = monthEventRowHeight
+      ? this.calculateRowLimitFromProp(monthEventRowHeight)
+      : state.rowLimit
+
+    console.info('MonthView getDerivedStateFromProps rowLimit', rowLimit)
+
     return {
       date,
-      needLimitMeasure: localizer.neq(date, state.date, 'month'),
+      rowLimit,
+      needLimitMeasure:
+        !monthEventRowHeight && localizer.neq(date, state.date, 'month'),
     }
   }
 
@@ -101,9 +115,7 @@ class MonthView extends React.Component {
         <div className="rbc-row rbc-month-header" role="row">
           {this.renderHeaders(weeks[0])}
         </div>
-        {this.state.needLimitMeasure
-          ? this.renderWeek(weeks[0], 0)
-          : weeks.map(this.renderWeek)}
+        {weeks.map(this.renderWeek)}
         {this.props.popup && this.renderOverlay()}
       </div>
     )
@@ -283,6 +295,20 @@ class MonthView extends React.Component {
     ) */
   }
 
+  calculateRowLimitFromProp(monthEventRowHeight) {
+    const containerHeight = this.containerRef.current
+      ? this.containerRef.current.clientHeight
+      : window.innerHeight - 291
+
+    console.info(
+      'calculateRowLimitFromProp',
+      monthEventRowHeight,
+      containerHeight
+    )
+
+    return Math.floor((containerHeight - 44 - 27 * 5) / 5 / monthEventRowHeight)
+  }
+
   measureRowLimit() {
     console.info(
       'measureRowLimit',
@@ -290,7 +316,6 @@ class MonthView extends React.Component {
       this.state,
       this.slotRowRef.current
     )
-    if (!this.slotRowRef.current || this.props.events.length <= 0) return
 
     this.setState({
       needLimitMeasure: false,

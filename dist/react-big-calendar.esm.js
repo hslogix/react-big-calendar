@@ -1920,15 +1920,6 @@ var EventRow = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
-EventRow.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? _objectSpread(
-        {
-          segments: PropTypes.array,
-        },
-        EventRowMixin.propTypes
-      )
-    : {}
 EventRow.defaultProps = _objectSpread({}, EventRowMixin.defaultProps)
 
 function endOfRange(_ref) {
@@ -2899,9 +2890,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
               },
               this.renderHeaders(weeks[0])
             ),
-            this.state.needLimitMeasure
-              ? this.renderWeek(weeks[0], 0)
-              : weeks.map(this.renderWeek),
+            weeks.map(this.renderWeek),
             this.props.popup && this.renderOverlay()
           )
         },
@@ -3010,6 +2999,22 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         },
       },
       {
+        key: 'calculateRowLimitFromProp',
+        value: function calculateRowLimitFromProp(monthEventRowHeight) {
+          var containerHeight = this.containerRef.current
+            ? this.containerRef.current.clientHeight
+            : window.innerHeight - 291
+          console.info(
+            'calculateRowLimitFromProp',
+            monthEventRowHeight,
+            containerHeight
+          )
+          return Math.floor(
+            (containerHeight - 44 - 27 * 5) / 5 / monthEventRowHeight
+          )
+        },
+      },
+      {
         key: 'measureRowLimit',
         value: function measureRowLimit() {
           console.info(
@@ -3018,7 +3023,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             this.state,
             this.slotRowRef.current
           )
-          if (!this.slotRowRef.current || this.props.events.length <= 0) return
           this.setState({
             needLimitMeasure: false,
             rowLimit: this.slotRowRef.current.getRowLimit(),
@@ -3059,16 +3063,25 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         key: 'getDerivedStateFromProps',
         value: function getDerivedStateFromProps(_ref2, state) {
           var date = _ref2.date,
-            localizer = _ref2.localizer
+            localizer = _ref2.localizer,
+            monthEventRowHeight = _ref2.monthEventRowHeight
           console.info(
             'MonthView getDerivedStateFromProps',
             date,
+            monthEventRowHeight,
             state,
-            localizer.neq(date, state.date, 'month')
+            localizer.neq(date, state.date, 'month'),
+            this.containerRef.current
           )
+          var rowLimit = monthEventRowHeight
+            ? this.calculateRowLimitFromProp(monthEventRowHeight)
+            : state.rowLimit
+          console.info('MonthView getDerivedStateFromProps rowLimit', rowLimit)
           return {
             date: date,
-            needLimitMeasure: localizer.neq(date, state.date, 'month'),
+            rowLimit: rowLimit,
+            needLimitMeasure:
+              !monthEventRowHeight && localizer.neq(date, state.date, 'month'),
           }
         },
       },
@@ -3655,16 +3668,6 @@ var TimeSlotGroup = /*#__PURE__*/ (function (_Component) {
     },
   ])
 })(Component)
-TimeSlotGroup.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        renderSlot: PropTypes.func,
-        group: PropTypes.array.isRequired,
-        resource: PropTypes.any,
-        components: PropTypes.object,
-        getters: PropTypes.object,
-      }
-    : {}
 
 function stringifyPercent(v) {
   return typeof v === 'string' ? v : v + '%'

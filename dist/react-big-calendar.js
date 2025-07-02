@@ -47806,12 +47806,6 @@
       label
     )
   }
-  Header.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-        }
-      : {}
 
   var DateHeader = function DateHeader(_ref) {
     var label = _ref.label,
@@ -48102,9 +48096,7 @@
                 },
                 this.renderHeaders(weeks[0])
               ),
-              this.state.needLimitMeasure
-                ? this.renderWeek(weeks[0], 0)
-                : weeks.map(this.renderWeek),
+              weeks.map(this.renderWeek),
               this.props.popup && this.renderOverlay()
             )
           },
@@ -48213,6 +48205,22 @@
           },
         },
         {
+          key: 'calculateRowLimitFromProp',
+          value: function calculateRowLimitFromProp(monthEventRowHeight) {
+            var containerHeight = this.containerRef.current
+              ? this.containerRef.current.clientHeight
+              : window.innerHeight - 291
+            console.info(
+              'calculateRowLimitFromProp',
+              monthEventRowHeight,
+              containerHeight
+            )
+            return Math.floor(
+              (containerHeight - 44 - 27 * 5) / 5 / monthEventRowHeight
+            )
+          },
+        },
+        {
           key: 'measureRowLimit',
           value: function measureRowLimit() {
             console.info(
@@ -48221,8 +48229,6 @@
               this.state,
               this.slotRowRef.current
             )
-            if (!this.slotRowRef.current || this.props.events.length <= 0)
-              return
             this.setState({
               needLimitMeasure: false,
               rowLimit: this.slotRowRef.current.getRowLimit(),
@@ -48263,16 +48269,29 @@
           key: 'getDerivedStateFromProps',
           value: function getDerivedStateFromProps(_ref2, state) {
             var date = _ref2.date,
-              localizer = _ref2.localizer
+              localizer = _ref2.localizer,
+              monthEventRowHeight = _ref2.monthEventRowHeight
             console.info(
               'MonthView getDerivedStateFromProps',
               date,
+              monthEventRowHeight,
               state,
-              localizer.neq(date, state.date, 'month')
+              localizer.neq(date, state.date, 'month'),
+              this.containerRef.current
+            )
+            var rowLimit = monthEventRowHeight
+              ? this.calculateRowLimitFromProp(monthEventRowHeight)
+              : state.rowLimit
+            console.info(
+              'MonthView getDerivedStateFromProps rowLimit',
+              rowLimit
             )
             return {
               date: date,
-              needLimitMeasure: localizer.neq(date, state.date, 'month'),
+              rowLimit: rowLimit,
+              needLimitMeasure:
+                !monthEventRowHeight &&
+                localizer.neq(date, state.date, 'month'),
             }
           },
         },
@@ -50169,14 +50188,6 @@
     var label = _ref.label
     return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
   }
-  ResourceHeader.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-          index: propTypesExports.number,
-          resource: propTypesExports.object,
-        }
-      : {}
 
   var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
     function TimeGridHeader() {
