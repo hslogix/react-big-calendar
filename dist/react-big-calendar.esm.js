@@ -12,8 +12,8 @@ import React, {
   useLayoutEffect,
   useRef,
   createRef,
-  useMemo,
   Component,
+  useMemo,
   useState,
   useCallback,
 } from 'react'
@@ -2679,6 +2679,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         localizer
       )
       var sorted = sortWeekEvents(weeksEvents, accessors, localizer)
+      console.info('renderWeek', weekIdx, sorted)
       return /*#__PURE__*/ React.createElement(DateContentRow, {
         key: weekIdx,
         ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -2868,7 +2869,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'render',
         value: function render() {
-          var _this3 = this
           var _this$props4 = this.props,
             date = _this$props4.date,
             localizer = _this$props4.localizer,
@@ -2876,19 +2876,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             month = localizer.visibleDays(date, localizer),
             weeks = chunk(month, 7)
           this._weekCount = weeks.length
-          console.info('weeks', weeks)
-          var headersMemo = useMemo(
-            function () {
-              return _this3.renderHeaders(weeks[0])
-            },
-            [weeks]
-          )
-          var weeksMemo = useMemo(
-            function () {
-              return weeks.map(_this3.renderWeek)
-            },
-            [weeks]
-          )
           return /*#__PURE__*/ React.createElement(
             'div',
             {
@@ -2903,9 +2890,9 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
                 className: 'rbc-row rbc-month-header',
                 role: 'row',
               },
-              headersMemo
+              this.renderHeaders(weeks[0])
             ),
-            weeksMemo,
+            weeks.map(this.renderWeek),
             this.props.popup && this.renderOverlay()
           )
         },
@@ -2919,6 +2906,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var first = row[0]
           var last = row[row.length - 1]
           var HeaderComponent = components.header || Header
+          console.info('renderHeaders', first, last)
           return localizer.range(first, last, 'day').map(function (day, idx) {
             return /*#__PURE__*/ React.createElement(
               'div',
@@ -2940,7 +2928,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function renderOverlay() {
           var _this$state$overlay,
             _this$state2,
-            _this4 = this
+            _this3 = this
           var overlay =
             (_this$state$overlay =
               (_this$state2 = this.state) === null || _this$state2 === void 0
@@ -2958,7 +2946,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             popupOffset = _this$props6.popupOffset,
             handleDragStart = _this$props6.handleDragStart
           var onHide = function onHide() {
-            return _this4.setState({
+            return _this3.setState({
               overlay: null,
             })
           }
@@ -4305,6 +4293,14 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
+ResourceHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        index: PropTypes.number,
+        resource: PropTypes.object,
+      }
+    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {

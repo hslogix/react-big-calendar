@@ -47862,6 +47862,7 @@
           localizer
         )
         var sorted = sortWeekEvents(weeksEvents, accessors, localizer)
+        console.info('renderWeek', weekIdx, sorted)
         return /*#__PURE__*/ React.createElement(DateContentRow, {
           key: weekIdx,
           ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -48052,7 +48053,6 @@
         {
           key: 'render',
           value: function render() {
-            var _this3 = this
             var _this$props4 = this.props,
               date = _this$props4.date,
               localizer = _this$props4.localizer,
@@ -48060,19 +48060,6 @@
               month = localizer.visibleDays(date, localizer),
               weeks = chunk_1(month, 7)
             this._weekCount = weeks.length
-            console.info('weeks', weeks)
-            var headersMemo = reactExports.useMemo(
-              function () {
-                return _this3.renderHeaders(weeks[0])
-              },
-              [weeks]
-            )
-            var weeksMemo = reactExports.useMemo(
-              function () {
-                return weeks.map(_this3.renderWeek)
-              },
-              [weeks]
-            )
             return /*#__PURE__*/ React.createElement(
               'div',
               {
@@ -48087,9 +48074,9 @@
                   className: 'rbc-row rbc-month-header',
                   role: 'row',
                 },
-                headersMemo
+                this.renderHeaders(weeks[0])
               ),
-              weeksMemo,
+              weeks.map(this.renderWeek),
               this.props.popup && this.renderOverlay()
             )
           },
@@ -48103,6 +48090,7 @@
             var first = row[0]
             var last = row[row.length - 1]
             var HeaderComponent = components.header || Header
+            console.info('renderHeaders', first, last)
             return localizer.range(first, last, 'day').map(function (day, idx) {
               return /*#__PURE__*/ React.createElement(
                 'div',
@@ -48124,7 +48112,7 @@
           value: function renderOverlay() {
             var _this$state$overlay,
               _this$state2,
-              _this4 = this
+              _this3 = this
             var overlay =
               (_this$state$overlay =
                 (_this$state2 = this.state) === null || _this$state2 === void 0
@@ -48142,7 +48130,7 @@
               popupOffset = _this$props6.popupOffset,
               handleDragStart = _this$props6.handleDragStart
             var onHide = function onHide() {
-              return _this4.setState({
+              return _this3.setState({
                 overlay: null,
               })
             }
