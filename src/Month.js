@@ -1,4 +1,4 @@
-import React, { createRef } from 'react'
+import React, { createRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
@@ -82,6 +82,10 @@ class MonthView extends React.Component {
 
     this._weekCount = weeks.length
 
+    console.info("weeks", weeks)
+    const headersMemo = useMemo(() => this.renderHeaders(weeks[0]), [weeks])
+    const weeksMemo = useMemo(() => weeks.map(this.renderWeek), [weeks])
+
     return (
       <div
         className={clsx('rbc-month-view', className)}
@@ -90,9 +94,9 @@ class MonthView extends React.Component {
         ref={this.containerRef}
       >
         <div className="rbc-row rbc-month-header" role="row">
-          {this.renderHeaders(weeks[0])}
+          {headersMemo}
         </div>
-        {weeks.map(this.renderWeek)}
+        {weeksMemo}
         {this.props.popup && this.renderOverlay()}
       </div>
     )
