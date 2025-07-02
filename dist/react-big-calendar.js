@@ -47806,6 +47806,12 @@
       label
     )
   }
+  Header.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+        }
+      : {}
 
   var DateHeader = function DateHeader(_ref) {
     var label = _ref.label,
@@ -48209,6 +48215,8 @@
         {
           key: 'measureRowLimit',
           value: function measureRowLimit() {
+            console.info('measureRowLimit', this.props, this.state)
+            if (this.props.events.length <= 0) return
             this.setState({
               needLimitMeasure: false,
               rowLimit: this.slotRowRef.current.getRowLimit(),
