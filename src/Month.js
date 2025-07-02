@@ -30,16 +30,17 @@ class MonthView extends React.Component {
     //   needLimitMeasure: true,
     //   date: null,
     // }
-    this.containerRef = createRef()
-    this.slotRowRef = createRef()
-
     const { monthEventRowHeight } = this.props
 
     this.state = {
-      rowLimit: this.calculateRowLimitFromProp(monthEventRowHeight),
+      rowLimit: monthEventRowHeight
+        ? this.calculateRowLimitFromProp(monthEventRowHeight)
+        : 5,
       needLimitMeasure: !monthEventRowHeight,
       date: this.props.date,
     }
+    this.containerRef = createRef()
+    this.slotRowRef = createRef()
 
     this._bgRows = []
     this._pendingSelection = []
@@ -291,21 +292,19 @@ class MonthView extends React.Component {
   }
 
   calculateRowLimitFromProp(monthEventRowHeight) {
-    const monthView = document.querySelector('.rbc-month-view')
-    const containerHeight = monthView
-      ? monthView.clientHeight -
-        document.querySelector('.rbc-month-header').clientHeight
-      : window.innerHeight - 291 - 44
-
-    // document.querySelector('.rbc-month-view').clientHeight -
-    //   document.querySelector('.rbc-month-header').clientHeight
+    // HACK: We need to calculate the row limit based on container height.
+    const monthHeader = document.querySelector('.rbc-month-header')
+    const containerHeight =
+      document.querySelector('.rbc-calendar').clientHeight -
+      (monthHeader?.clientHeight || this.props.monthDowHeight || 44)
     const headerHeight = this.props.monthEventHeaderHeight || 27
 
     console.info(
       'calculateRowLimitFromProp',
       monthEventRowHeight,
       containerHeight,
-      monthView
+      monthHeader,
+      headerHeight
     )
 
     return Math.floor(

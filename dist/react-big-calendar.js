@@ -48023,14 +48023,16 @@
           overlay: null,
         })
       }
-      _this.containerRef = /*#__PURE__*/ reactExports.createRef()
-      _this.slotRowRef = /*#__PURE__*/ reactExports.createRef()
       var monthEventRowHeight = _this.props.monthEventRowHeight
       _this.state = {
-        rowLimit: _this.calculateRowLimitFromProp(monthEventRowHeight),
+        rowLimit: monthEventRowHeight
+          ? _this.calculateRowLimitFromProp(monthEventRowHeight)
+          : 5,
         needLimitMeasure: !monthEventRowHeight,
         date: _this.props.date,
       }
+      _this.containerRef = /*#__PURE__*/ reactExports.createRef()
+      _this.slotRowRef = /*#__PURE__*/ reactExports.createRef()
       _this._bgRows = []
       _this._pendingSelection = []
       console.info('MonthView constructor', _this.props, _this.state)
@@ -48214,20 +48216,22 @@
         {
           key: 'calculateRowLimitFromProp',
           value: function calculateRowLimitFromProp(monthEventRowHeight) {
-            var monthView = document.querySelector('.rbc-month-view')
-            var containerHeight = monthView
-              ? monthView.clientHeight -
-                document.querySelector('.rbc-month-header').clientHeight
-              : window.innerHeight - 291 - 44
-
-            // document.querySelector('.rbc-month-view').clientHeight -
-            //   document.querySelector('.rbc-month-header').clientHeight
+            // HACK: We need to calculate the row limit based on container height.
+            var monthHeader = document.querySelector('.rbc-month-header')
+            var containerHeight =
+              document.querySelector('.rbc-calendar').clientHeight -
+              ((monthHeader === null || monthHeader === void 0
+                ? void 0
+                : monthHeader.clientHeight) ||
+                this.props.monthDowHeight ||
+                44)
             var headerHeight = this.props.monthEventHeaderHeight || 27
             console.info(
               'calculateRowLimitFromProp',
               monthEventRowHeight,
               containerHeight,
-              monthView
+              monthHeader,
+              headerHeight
             )
             return Math.floor(
               (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
