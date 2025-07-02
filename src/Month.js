@@ -25,13 +25,19 @@ class MonthView extends React.Component {
   constructor(...args) {
     super(...args)
 
-    this.state = {
-      rowLimit: 5,
-      needLimitMeasure: true,
-      date: null,
-    }
+    // this.state = {
+    //   rowLimit: 5,
+    //   needLimitMeasure: true,
+    //   date: null,
+    // }
     this.containerRef = createRef()
     this.slotRowRef = createRef()
+
+    this.state = {
+      rowLimit: this.calculateRowLimitFromProp(this.props.monthEventRowHeight),
+      needLimitMeasure: false,
+      date: this.props.date,
+    }
 
     this._bgRows = []
     this._pendingSelection = []
@@ -52,20 +58,20 @@ class MonthView extends React.Component {
     }
   }
 
-  componentWillMount() {
-    console.info('MonthView componentWillMount', this.props, this.state)
-    const { monthEventRowHeight } = this.props
+  // componentWillMount() {
+  //   console.info('MonthView componentWillMount', this.props, this.state)
+  //   const { monthEventRowHeight } = this.props
 
-    if (this.state.needLimitMeasure && monthEventRowHeight) {
-      const rowLimit = this.calculateRowLimitFromProp(monthEventRowHeight)
+  //   if (this.state.needLimitMeasure && monthEventRowHeight) {
+  //     const rowLimit = this.calculateRowLimitFromProp(monthEventRowHeight)
 
-      console.info('MonthView componentWillMount rowLimit', rowLimit)
-      this.setState({
-        rowLimit,
-        needLimitMeasure: false,
-      })
-    }
-  }
+  //     console.info('MonthView componentWillMount rowLimit', rowLimit)
+  //     this.setState({
+  //       rowLimit,
+  //       needLimitMeasure: false,
+  //     })
+  //   }
+  // }
 
   componentDidMount() {
     let running
@@ -305,7 +311,8 @@ class MonthView extends React.Component {
     console.info(
       'calculateRowLimitFromProp',
       monthEventRowHeight,
-      containerHeight
+      containerHeight,
+      this.containerRef.current
     )
 
     return Math.floor((containerHeight - 44 - 27 * 5) / 5 / monthEventRowHeight)

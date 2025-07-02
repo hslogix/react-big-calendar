@@ -47849,6 +47849,12 @@
         _args[_key] = arguments[_key]
       }
       _this = _callSuper(this, MonthView, [].concat(_args))
+
+      // this.state = {
+      //   rowLimit: 5,
+      //   needLimitMeasure: true,
+      //   date: null,
+      // }
       _this.getContainer = function () {
         return _this.containerRef.current
       }
@@ -48017,13 +48023,15 @@
           overlay: null,
         })
       }
-      _this.state = {
-        rowLimit: 5,
-        needLimitMeasure: true,
-        date: null,
-      }
       _this.containerRef = /*#__PURE__*/ reactExports.createRef()
       _this.slotRowRef = /*#__PURE__*/ reactExports.createRef()
+      _this.state = {
+        rowLimit: _this.calculateRowLimitFromProp(
+          _this.props.monthEventRowHeight
+        ),
+        needLimitMeasure: false,
+        date: _this.props.date,
+      }
       _this._bgRows = []
       _this._pendingSelection = []
       console.info('MonthView constructor', _this.props, _this.state)
@@ -48034,42 +48042,47 @@
       MonthView,
       [
         {
-          key: 'componentWillMount',
-          value: function componentWillMount() {
-            console.info('MonthView componentWillMount', this.props, this.state)
-            var monthEventRowHeight = this.props.monthEventRowHeight
-            if (this.state.needLimitMeasure && monthEventRowHeight) {
-              var rowLimit = this.calculateRowLimitFromProp(monthEventRowHeight)
-              console.info('MonthView componentWillMount rowLimit', rowLimit)
-              this.setState({
-                rowLimit: rowLimit,
-                needLimitMeasure: false,
-              })
-            }
-          },
-        },
-        {
           key: 'componentDidMount',
-          value: function componentDidMount() {
-            var _this2 = this
-            var running
-            console.info('MonthView componentDidMount', this.props, this.state)
-            if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
-            window.addEventListener(
-              'resize',
-              (this._resizeListener = function () {
-                if (!running) {
-                  request(function () {
-                    running = false
-                    _this2.setState({
-                      needLimitMeasure: true,
-                    }) //eslint-disable-line
-                  })
-                }
-              }),
-              false
-            )
-          },
+          value:
+            // componentWillMount() {
+            //   console.info('MonthView componentWillMount', this.props, this.state)
+            //   const { monthEventRowHeight } = this.props
+
+            //   if (this.state.needLimitMeasure && monthEventRowHeight) {
+            //     const rowLimit = this.calculateRowLimitFromProp(monthEventRowHeight)
+
+            //     console.info('MonthView componentWillMount rowLimit', rowLimit)
+            //     this.setState({
+            //       rowLimit,
+            //       needLimitMeasure: false,
+            //     })
+            //   }
+            // }
+
+            function componentDidMount() {
+              var _this2 = this
+              var running
+              console.info(
+                'MonthView componentDidMount',
+                this.props,
+                this.state
+              )
+              if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
+              window.addEventListener(
+                'resize',
+                (this._resizeListener = function () {
+                  if (!running) {
+                    request(function () {
+                      running = false
+                      _this2.setState({
+                        needLimitMeasure: true,
+                      }) //eslint-disable-line
+                    })
+                  }
+                }),
+                false
+              )
+            },
         },
         {
           key: 'componentDidUpdate',
@@ -48228,7 +48241,8 @@
             console.info(
               'calculateRowLimitFromProp',
               monthEventRowHeight,
-              containerHeight
+              containerHeight,
+              this.containerRef.current
             )
             return Math.floor(
               (containerHeight - 44 - 27 * 5) / 5 / monthEventRowHeight
