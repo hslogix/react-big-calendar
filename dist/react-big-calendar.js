@@ -48025,11 +48025,10 @@
       }
       _this.containerRef = /*#__PURE__*/ reactExports.createRef()
       _this.slotRowRef = /*#__PURE__*/ reactExports.createRef()
+      var monthEventRowHeight = _this.props.monthEventRowHeight
       _this.state = {
-        rowLimit: _this.calculateRowLimitFromProp(
-          _this.props.monthEventRowHeight
-        ),
-        needLimitMeasure: false,
+        rowLimit: _this.calculateRowLimitFromProp(monthEventRowHeight),
+        needLimitMeasure: !monthEventRowHeight,
         date: _this.props.date,
       }
       _this._bgRows = []
@@ -48043,46 +48042,26 @@
       [
         {
           key: 'componentDidMount',
-          value:
-            // componentWillMount() {
-            //   console.info('MonthView componentWillMount', this.props, this.state)
-            //   const { monthEventRowHeight } = this.props
-
-            //   if (this.state.needLimitMeasure && monthEventRowHeight) {
-            //     const rowLimit = this.calculateRowLimitFromProp(monthEventRowHeight)
-
-            //     console.info('MonthView componentWillMount rowLimit', rowLimit)
-            //     this.setState({
-            //       rowLimit,
-            //       needLimitMeasure: false,
-            //     })
-            //   }
-            // }
-
-            function componentDidMount() {
-              var _this2 = this
-              var running
-              console.info(
-                'MonthView componentDidMount',
-                this.props,
-                this.state
-              )
-              if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
-              window.addEventListener(
-                'resize',
-                (this._resizeListener = function () {
-                  if (!running) {
-                    request(function () {
-                      running = false
-                      _this2.setState({
-                        needLimitMeasure: true,
-                      }) //eslint-disable-line
-                    })
-                  }
-                }),
-                false
-              )
-            },
+          value: function componentDidMount() {
+            var _this2 = this
+            var running
+            console.info('MonthView componentDidMount', this.props, this.state)
+            if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
+            window.addEventListener(
+              'resize',
+              (this._resizeListener = function () {
+                if (!running) {
+                  request(function () {
+                    running = false
+                    _this2.setState({
+                      needLimitMeasure: true,
+                    }) //eslint-disable-line
+                  })
+                }
+              }),
+              false
+            )
+          },
         },
         {
           key: 'componentDidUpdate',
