@@ -48034,6 +48034,21 @@
       MonthView,
       [
         {
+          key: 'componentWillMount',
+          value: function componentWillMount() {
+            console.info('MonthView componentWillMount', this.props, this.state)
+            var monthEventRowHeight = this.props.monthEventRowHeight
+            if (this.state.needLimitMeasure && monthEventRowHeight) {
+              var rowLimit = this.calculateRowLimitFromProp(monthEventRowHeight)
+              console.info('MonthView componentWillMount rowLimit', rowLimit)
+              this.setState({
+                rowLimit: rowLimit,
+                needLimitMeasure: false,
+              })
+            }
+          },
+        },
+        {
           key: 'componentDidMount',
           value: function componentDidMount() {
             var _this2 = this
@@ -48269,28 +48284,16 @@
           key: 'getDerivedStateFromProps',
           value: function getDerivedStateFromProps(_ref2, state) {
             var date = _ref2.date,
-              localizer = _ref2.localizer,
-              monthEventRowHeight = _ref2.monthEventRowHeight
+              localizer = _ref2.localizer
             console.info(
               'MonthView getDerivedStateFromProps',
               date,
-              monthEventRowHeight,
               state,
               localizer.neq(date, state.date, 'month')
             )
-            var rowLimit = monthEventRowHeight
-              ? this.calculateRowLimitFromProp(monthEventRowHeight)
-              : state.rowLimit
-            console.info(
-              'MonthView getDerivedStateFromProps rowLimit',
-              rowLimit
-            )
             return {
               date: date,
-              rowLimit: rowLimit,
-              needLimitMeasure:
-                !monthEventRowHeight &&
-                localizer.neq(date, state.date, 'month'),
+              needLimitMeasure: localizer.neq(date, state.date, 'month'),
             }
           },
         },

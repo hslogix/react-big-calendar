@@ -38,29 +38,32 @@ class MonthView extends React.Component {
     console.info('MonthView constructor', this.props, this.state)
   }
 
-  static getDerivedStateFromProps(
-    { date, localizer, monthEventRowHeight },
-    state
-  ) {
+  static getDerivedStateFromProps({ date, localizer }, state) {
     console.info(
       'MonthView getDerivedStateFromProps',
       date,
-      monthEventRowHeight,
       state,
       localizer.neq(date, state.date, 'month')
     )
 
-    const rowLimit = monthEventRowHeight
-      ? this.calculateRowLimitFromProp(monthEventRowHeight)
-      : state.rowLimit
-
-    console.info('MonthView getDerivedStateFromProps rowLimit', rowLimit)
-
     return {
       date,
-      rowLimit,
-      needLimitMeasure:
-        !monthEventRowHeight && localizer.neq(date, state.date, 'month'),
+      needLimitMeasure: localizer.neq(date, state.date, 'month'),
+    }
+  }
+
+  componentWillMount() {
+    console.info('MonthView componentWillMount', this.props, this.state)
+    const { monthEventRowHeight } = this.props
+
+    if (this.state.needLimitMeasure && monthEventRowHeight) {
+      const rowLimit = this.calculateRowLimitFromProp(monthEventRowHeight)
+
+      console.info('MonthView componentWillMount rowLimit', rowLimit)
+      this.setState({
+        rowLimit,
+        needLimitMeasure: false,
+      })
     }
   }
 
