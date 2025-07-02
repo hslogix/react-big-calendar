@@ -39,7 +39,12 @@ class MonthView extends React.Component {
   }
 
   static getDerivedStateFromProps({ date, localizer }, state) {
-    console.info('MonthView getDerivedStateFromProps', date, state)
+    console.info(
+      'MonthView getDerivedStateFromProps',
+      date,
+      state,
+      localizer.neq(date, state.date, 'month')
+    )
     return {
       date,
       needLimitMeasure: localizer.neq(date, state.date, 'month'),
@@ -84,7 +89,7 @@ class MonthView extends React.Component {
       weeks = chunk(month, 7)
 
     this._weekCount = weeks.length
-    console.info('render', date, weeks)
+    console.info('render', date, weeks, this.state)
 
     return (
       <div
@@ -96,7 +101,7 @@ class MonthView extends React.Component {
         <div className="rbc-row rbc-month-header" role="row">
           {this.renderHeaders(weeks[0])}
         </div>
-        {weeks.map(this.renderWeek)}
+        {!this.state.needLimitMeasure && weeks.map(this.renderWeek)}
         {this.props.popup && this.renderOverlay()}
       </div>
     )
