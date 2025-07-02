@@ -37,7 +37,7 @@ class MonthView extends React.Component {
         ? this.calculateRowLimitFromProp(monthEventRowHeight)
         : 5,
       needLimitMeasure: !monthEventRowHeight,
-      date: this.props.date,
+      date: monthEventRowHeight ? this.props.date : null,
     }
     this.containerRef = createRef()
     this.slotRowRef = createRef()

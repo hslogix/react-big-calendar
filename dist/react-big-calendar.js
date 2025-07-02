@@ -48029,7 +48029,7 @@
           ? _this.calculateRowLimitFromProp(monthEventRowHeight)
           : 5,
         needLimitMeasure: !monthEventRowHeight,
-        date: _this.props.date,
+        date: monthEventRowHeight ? _this.props.date : null,
       }
       _this.containerRef = /*#__PURE__*/ reactExports.createRef()
       _this.slotRowRef = /*#__PURE__*/ reactExports.createRef()
