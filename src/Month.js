@@ -35,9 +35,11 @@ class MonthView extends React.Component {
 
     this._bgRows = []
     this._pendingSelection = []
+    console.info('MonthView constructor', this.props, this.state)
   }
 
   static getDerivedStateFromProps({ date, localizer }, state) {
+    console.info('MonthView getDerivedStateFromProps', date, state)
     return {
       date,
       needLimitMeasure: localizer.neq(date, state.date, 'month'),
@@ -46,7 +48,7 @@ class MonthView extends React.Component {
 
   componentDidMount() {
     let running
-
+    console.info('MonthView componentDidMount', this.props, this.state)
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
 
     window.addEventListener(
@@ -64,6 +66,7 @@ class MonthView extends React.Component {
   }
 
   componentDidUpdate() {
+    console.info('MonthView componentDidUpdate', this.props, this.state)
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
   }
 
@@ -81,6 +84,7 @@ class MonthView extends React.Component {
       weeks = chunk(month, 7)
 
     this._weekCount = weeks.length
+    console.info('render', date, weeks)
 
     return (
       <div

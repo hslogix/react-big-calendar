@@ -2601,12 +2601,6 @@ var Header = function Header(_ref) {
     label
   )
 }
-Header.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-      }
-    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -2826,6 +2820,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     _this.slotRowRef = /*#__PURE__*/ createRef()
     _this._bgRows = []
     _this._pendingSelection = []
+    console.info('MonthView constructor', _this.props, _this.state)
     return _this
   }
   _inherits(MonthView, _React$Component)
@@ -2837,6 +2832,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function componentDidMount() {
           var _this2 = this
           var running
+          console.info('MonthView componentDidMount', this.props, this.state)
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
           window.addEventListener(
             'resize',
@@ -2857,6 +2853,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'componentDidUpdate',
         value: function componentDidUpdate() {
+          console.info('MonthView componentDidUpdate', this.props, this.state)
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
         },
       },
@@ -2876,6 +2873,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             month = localizer.visibleDays(date, localizer),
             weeks = chunk(month, 7)
           this._weekCount = weeks.length
+          console.info('render', date, weeks)
           return /*#__PURE__*/ React.createElement(
             'div',
             {
@@ -3044,6 +3042,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function getDerivedStateFromProps(_ref2, state) {
           var date = _ref2.date,
             localizer = _ref2.localizer
+          console.info('MonthView getDerivedStateFromProps', date, state)
           return {
             date: date,
             needLimitMeasure: localizer.neq(date, state.date, 'month'),
