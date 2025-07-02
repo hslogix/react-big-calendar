@@ -48216,7 +48216,9 @@
           value: function calculateRowLimitFromProp(monthEventRowHeight) {
             var containerHeight = this.containerRef.current
               ? this.containerRef.current.clientHeight
-              : window.innerHeight - 291
+              : document.querySelector('.rbc-month-view').clientHeight -
+                document.querySelector('.rbc-month-header').clientHeight
+            var headerHeight = this.props.monthEventHeaderHeight || 27
             console.info(
               'calculateRowLimitFromProp',
               monthEventRowHeight,
@@ -48224,7 +48226,7 @@
               this.containerRef.current
             )
             return Math.floor(
-              (containerHeight - 44 - 27 * 5) / 5 / monthEventRowHeight
+              (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
             )
           },
         },

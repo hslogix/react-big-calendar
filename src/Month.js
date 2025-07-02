@@ -293,7 +293,9 @@ class MonthView extends React.Component {
   calculateRowLimitFromProp(monthEventRowHeight) {
     const containerHeight = this.containerRef.current
       ? this.containerRef.current.clientHeight
-      : window.innerHeight - 291
+      : document.querySelector('.rbc-month-view').clientHeight -
+        document.querySelector('.rbc-month-header').clientHeight
+    const headerHeight = this.props.monthEventHeaderHeight || 27
 
     console.info(
       'calculateRowLimitFromProp',
@@ -302,7 +304,9 @@ class MonthView extends React.Component {
       this.containerRef.current
     )
 
-    return Math.floor((containerHeight - 44 - 27 * 5) / 5 / monthEventRowHeight)
+    return Math.floor(
+      (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
+    )
   }
 
   measureRowLimit() {
