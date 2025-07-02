@@ -47830,6 +47830,16 @@
       label
     )
   }
+  DateHeader.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+          date: propTypesExports.instanceOf(Date),
+          drilldownView: propTypesExports.string,
+          onDrillDown: propTypesExports.func,
+          isOffRange: propTypesExports.bool,
+        }
+      : {}
 
   var _excluded$6 = ['date', 'className']
   var eventsForWeek = function eventsForWeek(
@@ -48215,8 +48225,14 @@
         {
           key: 'measureRowLimit',
           value: function measureRowLimit() {
-            console.info('measureRowLimit', this.props, this.state)
-            if (this.props.events.length <= 0) return
+            console.info(
+              'measureRowLimit',
+              this.props,
+              this.state,
+              this.slotRowRef.current
+            )
+            if (!this.slotRowRef.current || this.props.events.length <= 0)
+              return
             this.setState({
               needLimitMeasure: false,
               rowLimit: this.slotRowRef.current.getRowLimit(),

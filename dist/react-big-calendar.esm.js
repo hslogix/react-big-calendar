@@ -1920,15 +1920,6 @@ var EventRow = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
-EventRow.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? _objectSpread(
-        {
-          segments: PropTypes.array,
-        },
-        EventRowMixin.propTypes
-      )
-    : {}
 EventRow.defaultProps = _objectSpread({}, EventRowMixin.defaultProps)
 
 function endOfRange(_ref) {
@@ -2610,12 +2601,6 @@ var Header = function Header(_ref) {
     label
   )
 }
-Header.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-      }
-    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -2634,6 +2619,16 @@ var DateHeader = function DateHeader(_ref) {
     label
   )
 }
+DateHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        date: PropTypes.instanceOf(Date),
+        drilldownView: PropTypes.string,
+        onDrillDown: PropTypes.func,
+        isOffRange: PropTypes.bool,
+      }
+    : {}
 
 var _excluded$6 = ['date', 'className']
 var eventsForWeek = function eventsForWeek(
@@ -3018,8 +3013,13 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'measureRowLimit',
         value: function measureRowLimit() {
-          console.info('measureRowLimit', this.props, this.state)
-          if (this.props.events.length <= 0) return
+          console.info(
+            'measureRowLimit',
+            this.props,
+            this.state,
+            this.slotRowRef.current
+          )
+          if (!this.slotRowRef.current || this.props.events.length <= 0) return
           this.setState({
             needLimitMeasure: false,
             rowLimit: this.slotRowRef.current.getRowLimit(),
@@ -3656,16 +3656,6 @@ var TimeSlotGroup = /*#__PURE__*/ (function (_Component) {
     },
   ])
 })(Component)
-TimeSlotGroup.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        renderSlot: PropTypes.func,
-        group: PropTypes.array.isRequired,
-        resource: PropTypes.any,
-        components: PropTypes.object,
-        getters: PropTypes.object,
-      }
-    : {}
 
 function stringifyPercent(v) {
   return typeof v === 'string' ? v : v + '%'
@@ -4326,14 +4316,6 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
-ResourceHeader.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-        index: PropTypes.number,
-        resource: PropTypes.object,
-      }
-    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {
@@ -5818,17 +5800,6 @@ var WorkWeek = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
-WorkWeek.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        date: PropTypes.instanceOf(Date).isRequired,
-        localizer: PropTypes.any,
-        min: PropTypes.instanceOf(Date),
-        max: PropTypes.instanceOf(Date),
-        scrollToTime: PropTypes.instanceOf(Date),
-        enableAutoScroll: PropTypes.bool,
-      }
-    : {}
 WorkWeek.defaultProps = TimeGrid.defaultProps
 WorkWeek.range = workWeekRange
 WorkWeek.navigate = Week.navigate
