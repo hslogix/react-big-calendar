@@ -101,7 +101,9 @@ class MonthView extends React.Component {
         <div className="rbc-row rbc-month-header" role="row">
           {this.renderHeaders(weeks[0])}
         </div>
-        {!this.state.needLimitMeasure && weeks.map(this.renderWeek)}
+        {this.state.needLimitMeasure
+          ? this.renderWeek(weeks[0])
+          : weeks.map(this.renderWeek)}
         {this.props.popup && this.renderOverlay()}
       </div>
     )

@@ -48096,7 +48096,9 @@
                 },
                 this.renderHeaders(weeks[0])
               ),
-              !this.state.needLimitMeasure && weeks.map(this.renderWeek),
+              this.state.needLimitMeasure
+                ? this.renderWeek(weeks[0])
+                : weeks.map(this.renderWeek),
               this.props.popup && this.renderOverlay()
             )
           },
