@@ -47830,16 +47830,6 @@
       label
     )
   }
-  DateHeader.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-          date: propTypesExports.instanceOf(Date),
-          drilldownView: propTypesExports.string,
-          onDrillDown: propTypesExports.func,
-          isOffRange: propTypesExports.bool,
-        }
-      : {}
 
   var _excluded$6 = ['date', 'className']
   var eventsForWeek = function eventsForWeek(
@@ -48113,7 +48103,7 @@
                 this.renderHeaders(weeks[0])
               ),
               this.state.needLimitMeasure
-                ? this.renderWeek(weeks[0])
+                ? this.renderWeek(weeks[0], 0)
                 : weeks.map(this.renderWeek),
               this.props.popup && this.renderOverlay()
             )
@@ -50179,6 +50169,14 @@
     var label = _ref.label
     return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
   }
+  ResourceHeader.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+          index: propTypesExports.number,
+          resource: propTypesExports.object,
+        }
+      : {}
 
   var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
     function TimeGridHeader() {

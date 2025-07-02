@@ -102,7 +102,7 @@ class MonthView extends React.Component {
           {this.renderHeaders(weeks[0])}
         </div>
         {this.state.needLimitMeasure
-          ? this.renderWeek(weeks[0])
+          ? this.renderWeek(weeks[0], 0)
           : weeks.map(this.renderWeek)}
         {this.props.popup && this.renderOverlay()}
       </div>
