@@ -30,15 +30,14 @@ class MonthView extends React.Component {
     //   needLimitMeasure: true,
     //   date: null,
     // }
-    const { monthEventRowHeight } = this.props
+    const { monthViewRowLimit } = this.props
 
     this.state = {
-      rowLimit: monthEventRowHeight
-        ? this.calculateRowLimitFromProp(monthEventRowHeight)
-        : 5,
-      needLimitMeasure: !monthEventRowHeight,
-      date: monthEventRowHeight ? this.props.date : null,
+      rowLimit: monthViewRowLimit || 5,
+      needLimitMeasure: !monthViewRowLimit,
+      date: monthViewRowLimit ? this.props.date : null,
     }
+
     this.containerRef = createRef()
     this.slotRowRef = createRef()
 
@@ -291,26 +290,27 @@ class MonthView extends React.Component {
     ) */
   }
 
-  calculateRowLimitFromProp(monthEventRowHeight) {
-    // HACK: We need to calculate the row limit based on container height.
-    const monthHeader = document.querySelector('.rbc-month-header')
-    const containerHeight =
-      document.querySelector('.rbc-calendar').clientHeight -
-      (monthHeader?.clientHeight || this.props.monthDowHeight || 44)
-    const headerHeight = this.props.monthEventHeaderHeight || 27
+  // calculateRowLimitFromProp(monthEventRowHeight) {
+  //   // HACK: We need to calculate the row limit based on container height.
+  //   const containerFluid = document.querySelector('.container-fluid').clientHeight - 171
+  //   const monthHeader = document.querySelector('.rbc-month-header')
+  //   const containerHeight =
+  //     document.querySelector('.rbc-calendar').clientHeight -
+  //     (monthHeader?.clientHeight || this.props.monthDowHeight || 44)
+  //   const headerHeight = this.props.monthEventHeaderHeight || 27
 
-    console.info(
-      'calculateRowLimitFromProp',
-      monthEventRowHeight,
-      containerHeight,
-      monthHeader,
-      headerHeight
-    )
+  //   console.info(
+  //     'calculateRowLimitFromProp',
+  //     monthEventRowHeight,
+  //     containerHeight,
+  //     monthHeader,
+  //     headerHeight
+  //   )
 
-    return Math.floor(
-      (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
-    )
-  }
+  //   return Math.floor(
+  //     (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
+  //   )
+  // }
 
   measureRowLimit() {
     console.info(

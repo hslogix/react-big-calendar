@@ -46086,6 +46086,15 @@
       },
     ])
   })(React.Component)
+  EventRow.propTypes =
+    'development' !== 'production'
+      ? _objectSpread2(
+          {
+            segments: propTypesExports.array,
+          },
+          EventRowMixin.propTypes
+        )
+      : {}
   EventRow.defaultProps = _objectSpread2({}, EventRowMixin.defaultProps)
 
   /**
@@ -47806,6 +47815,12 @@
       label
     )
   }
+  Header.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+        }
+      : {}
 
   var DateHeader = function DateHeader(_ref) {
     var label = _ref.label,
@@ -48023,13 +48038,11 @@
           overlay: null,
         })
       }
-      var monthEventRowHeight = _this.props.monthEventRowHeight
+      var monthViewRowLimit = _this.props.monthViewRowLimit
       _this.state = {
-        rowLimit: monthEventRowHeight
-          ? _this.calculateRowLimitFromProp(monthEventRowHeight)
-          : 5,
-        needLimitMeasure: !monthEventRowHeight,
-        date: monthEventRowHeight ? _this.props.date : null,
+        rowLimit: monthViewRowLimit || 5,
+        needLimitMeasure: !monthViewRowLimit,
+        date: monthViewRowLimit ? _this.props.date : null,
       }
       _this.containerRef = /*#__PURE__*/ reactExports.createRef()
       _this.slotRowRef = /*#__PURE__*/ reactExports.createRef()
@@ -48212,31 +48225,28 @@
           </Overlay>
         ) */
           },
-        },
-        {
-          key: 'calculateRowLimitFromProp',
-          value: function calculateRowLimitFromProp(monthEventRowHeight) {
-            // HACK: We need to calculate the row limit based on container height.
-            var monthHeader = document.querySelector('.rbc-month-header')
-            var containerHeight =
-              document.querySelector('.rbc-calendar').clientHeight -
-              ((monthHeader === null || monthHeader === void 0
-                ? void 0
-                : monthHeader.clientHeight) ||
-                this.props.monthDowHeight ||
-                44)
-            var headerHeight = this.props.monthEventHeaderHeight || 27
-            console.info(
-              'calculateRowLimitFromProp',
-              monthEventRowHeight,
-              containerHeight,
-              monthHeader,
-              headerHeight
-            )
-            return Math.floor(
-              (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
-            )
-          },
+
+          // calculateRowLimitFromProp(monthEventRowHeight) {
+          //   // HACK: We need to calculate the row limit based on container height.
+          //   const containerFluid = document.querySelector('.container-fluid').clientHeight - 171
+          //   const monthHeader = document.querySelector('.rbc-month-header')
+          //   const containerHeight =
+          //     document.querySelector('.rbc-calendar').clientHeight -
+          //     (monthHeader?.clientHeight || this.props.monthDowHeight || 44)
+          //   const headerHeight = this.props.monthEventHeaderHeight || 27
+
+          //   console.info(
+          //     'calculateRowLimitFromProp',
+          //     monthEventRowHeight,
+          //     containerHeight,
+          //     monthHeader,
+          //     headerHeight
+          //   )
+
+          //   return Math.floor(
+          //     (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
+          //   )
+          // }
         },
         {
           key: 'measureRowLimit',
@@ -51701,6 +51711,17 @@
       },
     ])
   })(React.Component)
+  WorkWeek.propTypes =
+    'development' !== 'production'
+      ? {
+          date: propTypesExports.instanceOf(Date).isRequired,
+          localizer: propTypesExports.any,
+          min: propTypesExports.instanceOf(Date),
+          max: propTypesExports.instanceOf(Date),
+          scrollToTime: propTypesExports.instanceOf(Date),
+          enableAutoScroll: propTypesExports.bool,
+        }
+      : {}
   WorkWeek.defaultProps = TimeGrid.defaultProps
   WorkWeek.range = workWeekRange
   WorkWeek.navigate = Week.navigate
