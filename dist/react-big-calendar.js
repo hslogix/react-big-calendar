@@ -46086,15 +46086,6 @@
       },
     ])
   })(React.Component)
-  EventRow.propTypes =
-    'development' !== 'production'
-      ? _objectSpread2(
-          {
-            segments: propTypesExports.array,
-          },
-          EventRowMixin.propTypes
-        )
-      : {}
   EventRow.defaultProps = _objectSpread2({}, EventRowMixin.defaultProps)
 
   /**
@@ -47815,12 +47806,6 @@
       label
     )
   }
-  Header.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-        }
-      : {}
 
   var DateHeader = function DateHeader(_ref) {
     var label = _ref.label,
@@ -49519,6 +49504,16 @@
       },
     ])
   })(reactExports.Component)
+  TimeSlotGroup.propTypes =
+    'development' !== 'production'
+      ? {
+          renderSlot: propTypesExports.func,
+          group: propTypesExports.array.isRequired,
+          resource: propTypesExports.any,
+          components: propTypesExports.object,
+          getters: propTypesExports.object,
+        }
+      : {}
 
   function stringifyPercent(v) {
     return typeof v === 'string' ? v : v + '%'
@@ -50186,6 +50181,14 @@
     var label = _ref.label
     return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
   }
+  ResourceHeader.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+          index: propTypesExports.number,
+          resource: propTypesExports.object,
+        }
+      : {}
 
   var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
     function TimeGridHeader() {
@@ -51694,17 +51697,6 @@
       },
     ])
   })(React.Component)
-  WorkWeek.propTypes =
-    'development' !== 'production'
-      ? {
-          date: propTypesExports.instanceOf(Date).isRequired,
-          localizer: propTypesExports.any,
-          min: propTypesExports.instanceOf(Date),
-          max: propTypesExports.instanceOf(Date),
-          scrollToTime: propTypesExports.instanceOf(Date),
-          enableAutoScroll: propTypesExports.bool,
-        }
-      : {}
   WorkWeek.defaultProps = TimeGrid.defaultProps
   WorkWeek.range = workWeekRange
   WorkWeek.navigate = Week.navigate
@@ -55834,7 +55826,7 @@
       // We do it this way to avoid issues when timezone switching
       // return dayjs(`${dt} ${tm}`).toDate()
       var mergedDateTime = dayjs(''.concat(dt, ' ').concat(tm)).toDate()
-      return dayjs(mergedDateTime).utc(true).toDate()
+      return dayjsLib(mergedDateTime).utc(true).toDate()
     }
     function add(date, adder, unit) {
       var datePart = fixUnit(unit)

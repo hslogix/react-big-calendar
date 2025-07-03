@@ -194,7 +194,7 @@ export default function (dayjsLib) {
     // We do it this way to avoid issues when timezone switching
     // return dayjs(`${dt} ${tm}`).toDate()
     const mergedDateTime = dayjs(`${dt} ${tm}`).toDate()
-    return dayjs(mergedDateTime).utc(true).toDate()
+    return dayjsLib(mergedDateTime).utc(true).toDate()
   }
 
   function add(date, adder, unit) {

@@ -4334,6 +4334,14 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
+ResourceHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        index: PropTypes.number,
+        resource: PropTypes.object,
+      }
+    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {
@@ -5818,17 +5826,6 @@ var WorkWeek = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
-WorkWeek.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        date: PropTypes.instanceOf(Date).isRequired,
-        localizer: PropTypes.any,
-        min: PropTypes.instanceOf(Date),
-        max: PropTypes.instanceOf(Date),
-        scrollToTime: PropTypes.instanceOf(Date),
-        enableAutoScroll: PropTypes.bool,
-      }
-    : {}
 WorkWeek.defaultProps = TimeGrid.defaultProps
 WorkWeek.range = workWeekRange
 WorkWeek.navigate = Week.navigate
@@ -8037,7 +8034,7 @@ function dayjs(dayjsLib) {
     // We do it this way to avoid issues when timezone switching
     // return dayjs(`${dt} ${tm}`).toDate()
     var mergedDateTime = dayjs(''.concat(dt, ' ').concat(tm)).toDate()
-    return dayjs(mergedDateTime).utc(true).toDate()
+    return dayjsLib(mergedDateTime).utc(true).toDate()
   }
   function add(date, adder, unit) {
     var datePart = fixUnit(unit)
