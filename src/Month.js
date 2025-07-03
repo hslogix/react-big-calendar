@@ -43,16 +43,16 @@ class MonthView extends React.Component {
 
     this._bgRows = []
     this._pendingSelection = []
-    console.info('MonthView constructor', this.props, this.state)
+    // console.info('MonthView constructor', this.props, this.state)
   }
 
   static getDerivedStateFromProps({ date, localizer }, state) {
-    console.info(
-      'MonthView getDerivedStateFromProps',
-      date,
-      state,
-      localizer.neq(date, state.date, 'month')
-    )
+    // console.info(
+    //   'MonthView getDerivedStateFromProps',
+    //   date,
+    //   state,
+    //   localizer.neq(date, state.date, 'month')
+    // )
 
     return {
       date,
@@ -62,7 +62,7 @@ class MonthView extends React.Component {
 
   componentDidMount() {
     let running
-    console.info('MonthView componentDidMount', this.props, this.state)
+    // console.info('MonthView componentDidMount', this.props, this.state)
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
 
     window.addEventListener(
@@ -80,7 +80,7 @@ class MonthView extends React.Component {
   }
 
   componentDidUpdate() {
-    console.info('MonthView componentDidUpdate', this.props, this.state)
+    // console.info('MonthView componentDidUpdate', this.props, this.state)
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
   }
 
@@ -98,7 +98,7 @@ class MonthView extends React.Component {
       weeks = chunk(month, 7)
 
     this._weekCount = weeks.length
-    console.info('render', date, weeks, this.state)
+    // console.info('render', date, weeks, this.state)
 
     return (
       <div
@@ -143,7 +143,7 @@ class MonthView extends React.Component {
     )
 
     const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
-    console.info('renderWeek', weekIdx, sorted)
+    // console.info('renderWeek', weekIdx, sorted)
 
     return (
       <DateContentRow
@@ -211,7 +211,7 @@ class MonthView extends React.Component {
     let first = row[0]
     let last = row[row.length - 1]
     let HeaderComponent = components.header || Header
-    console.info('renderHeaders', first, last)
+    // console.info('renderHeaders', first, last)
 
     return localizer.range(first, last, 'day').map((day, idx) => (
       <div key={'header_' + idx} className="rbc-header">
@@ -290,35 +290,13 @@ class MonthView extends React.Component {
     ) */
   }
 
-  // calculateRowLimitFromProp(monthEventRowHeight) {
-  //   // HACK: We need to calculate the row limit based on container height.
-  //   const containerFluid = document.querySelector('.container-fluid').clientHeight - 171
-  //   const monthHeader = document.querySelector('.rbc-month-header')
-  //   const containerHeight =
-  //     document.querySelector('.rbc-calendar').clientHeight -
-  //     (monthHeader?.clientHeight || this.props.monthDowHeight || 44)
-  //   const headerHeight = this.props.monthEventHeaderHeight || 27
-
-  //   console.info(
-  //     'calculateRowLimitFromProp',
-  //     monthEventRowHeight,
-  //     containerHeight,
-  //     monthHeader,
-  //     headerHeight
-  //   )
-
-  //   return Math.floor(
-  //     (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
-  //   )
-  // }
-
   measureRowLimit() {
-    console.info(
-      'measureRowLimit',
-      this.props,
-      this.state,
-      this.slotRowRef.current
-    )
+    // console.info(
+    //   'measureRowLimit',
+    //   this.props,
+    //   this.state,
+    //   this.slotRowRef.current
+    // )
 
     this.setState({
       needLimitMeasure: false,

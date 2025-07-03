@@ -47899,7 +47899,8 @@
           localizer
         )
         var sorted = sortWeekEvents(weeksEvents, accessors, localizer)
-        console.info('renderWeek', weekIdx, sorted)
+        // console.info('renderWeek', weekIdx, sorted)
+
         return /*#__PURE__*/ React.createElement(DateContentRow, {
           key: weekIdx,
           ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -48048,7 +48049,7 @@
       _this.slotRowRef = /*#__PURE__*/ reactExports.createRef()
       _this._bgRows = []
       _this._pendingSelection = []
-      console.info('MonthView constructor', _this.props, _this.state)
+      // console.info('MonthView constructor', this.props, this.state)
       return _this
     }
     _inherits(MonthView, _React$Component)
@@ -48060,7 +48061,7 @@
           value: function componentDidMount() {
             var _this2 = this
             var running
-            console.info('MonthView componentDidMount', this.props, this.state)
+            // console.info('MonthView componentDidMount', this.props, this.state)
             if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
             window.addEventListener(
               'resize',
@@ -48081,7 +48082,7 @@
         {
           key: 'componentDidUpdate',
           value: function componentDidUpdate() {
-            console.info('MonthView componentDidUpdate', this.props, this.state)
+            // console.info('MonthView componentDidUpdate', this.props, this.state)
             if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
           },
         },
@@ -48101,7 +48102,8 @@
               month = localizer.visibleDays(date, localizer),
               weeks = chunk_1(month, 7)
             this._weekCount = weeks.length
-            console.info('render', date, weeks, this.state)
+            // console.info('render', date, weeks, this.state)
+
             return /*#__PURE__*/ React.createElement(
               'div',
               {
@@ -48132,7 +48134,8 @@
             var first = row[0]
             var last = row[row.length - 1]
             var HeaderComponent = components.header || Header
-            console.info('renderHeaders', first, last)
+            // console.info('renderHeaders', first, last)
+
             return localizer.range(first, last, 'day').map(function (day, idx) {
               return /*#__PURE__*/ React.createElement(
                 'div',
@@ -48225,38 +48228,17 @@
           </Overlay>
         ) */
           },
-
-          // calculateRowLimitFromProp(monthEventRowHeight) {
-          //   // HACK: We need to calculate the row limit based on container height.
-          //   const containerFluid = document.querySelector('.container-fluid').clientHeight - 171
-          //   const monthHeader = document.querySelector('.rbc-month-header')
-          //   const containerHeight =
-          //     document.querySelector('.rbc-calendar').clientHeight -
-          //     (monthHeader?.clientHeight || this.props.monthDowHeight || 44)
-          //   const headerHeight = this.props.monthEventHeaderHeight || 27
-
-          //   console.info(
-          //     'calculateRowLimitFromProp',
-          //     monthEventRowHeight,
-          //     containerHeight,
-          //     monthHeader,
-          //     headerHeight
-          //   )
-
-          //   return Math.floor(
-          //     (containerHeight - headerHeight * 5) / 5 / monthEventRowHeight
-          //   )
-          // }
         },
         {
           key: 'measureRowLimit',
           value: function measureRowLimit() {
-            console.info(
-              'measureRowLimit',
-              this.props,
-              this.state,
-              this.slotRowRef.current
-            )
+            // console.info(
+            //   'measureRowLimit',
+            //   this.props,
+            //   this.state,
+            //   this.slotRowRef.current
+            // )
+
             this.setState({
               needLimitMeasure: false,
               rowLimit: this.slotRowRef.current.getRowLimit(),
@@ -48298,12 +48280,13 @@
           value: function getDerivedStateFromProps(_ref2, state) {
             var date = _ref2.date,
               localizer = _ref2.localizer
-            console.info(
-              'MonthView getDerivedStateFromProps',
-              date,
-              state,
-              localizer.neq(date, state.date, 'month')
-            )
+            // console.info(
+            //   'MonthView getDerivedStateFromProps',
+            //   date,
+            //   state,
+            //   localizer.neq(date, state.date, 'month')
+            // )
+
             return {
               date: date,
               needLimitMeasure: localizer.neq(date, state.date, 'month'),
@@ -55849,7 +55832,9 @@
       var tm = dayjs(time).format('HH:mm:ss')
       var dt = dayjs(date).startOf('day').format('MM/DD/YYYY')
       // We do it this way to avoid issues when timezone switching
-      return dayjs(''.concat(dt, ' ').concat(tm)).toDate()
+      // return dayjs(`${dt} ${tm}`).toDate()
+      var mergedDateTime = dayjs(''.concat(dt, ' ').concat(tm)).toDate()
+      return dayjs(mergedDateTime).utc(true).toDate()
     }
     function add(date, adder, unit) {
       var datePart = fixUnit(unit)
