@@ -2883,7 +2883,14 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var _this$props5 = this.props,
             events = _this$props5.events,
             accessors = _this$props5.accessors
-          var allWeeksEvents = Array(this._weekCount).fill([])
+          var allWeeksEvents = Array.from(
+            {
+              length: this._weekCount,
+            },
+            function () {
+              return []
+            }
+          )
           events.forEach(function (e) {
             for (var i = 0; i < _this3._weekCount; i++) {
               var week = weeks[i]
@@ -4327,6 +4334,14 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
+ResourceHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        index: PropTypes.number,
+        resource: PropTypes.object,
+      }
+    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {

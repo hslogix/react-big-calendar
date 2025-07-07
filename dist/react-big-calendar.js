@@ -48089,7 +48089,14 @@
             var _this$props5 = this.props,
               events = _this$props5.events,
               accessors = _this$props5.accessors
-            var allWeeksEvents = Array(this._weekCount).fill([])
+            var allWeeksEvents = Array.from(
+              {
+                length: this._weekCount,
+              },
+              function () {
+                return []
+              }
+            )
             events.forEach(function (e) {
               for (var i = 0; i < _this3._weekCount; i++) {
                 var week = weeks[i]
