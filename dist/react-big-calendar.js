@@ -5871,33 +5871,6 @@
     return _objectSpread2(_objectSpread2({}, defaultMessages), msgs)
   }
 
-  function _arrayWithoutHoles(r) {
-    if (Array.isArray(r)) return _arrayLikeToArray(r)
-  }
-
-  function _iterableToArray(r) {
-    if (
-      ('undefined' != typeof Symbol && null != r[Symbol.iterator]) ||
-      null != r['@@iterator']
-    )
-      return Array.from(r)
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError(
-      'Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
-    )
-  }
-
-  function _toConsumableArray(r) {
-    return (
-      _arrayWithoutHoles(r) ||
-      _iterableToArray(r) ||
-      _unsupportedIterableToArray(r) ||
-      _nonIterableSpread()
-    )
-  }
-
   /**
    * The base implementation of `_.slice` without an iteratee call guard.
    *
@@ -46088,6 +46061,33 @@
   })(React.Component)
   EventRow.defaultProps = _objectSpread2({}, EventRowMixin.defaultProps)
 
+  function _arrayWithoutHoles(r) {
+    if (Array.isArray(r)) return _arrayLikeToArray(r)
+  }
+
+  function _iterableToArray(r) {
+    if (
+      ('undefined' != typeof Symbol && null != r[Symbol.iterator]) ||
+      null != r['@@iterator']
+    )
+      return Array.from(r)
+  }
+
+  function _nonIterableSpread() {
+    throw new TypeError(
+      'Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
+    )
+  }
+
+  function _toConsumableArray(r) {
+    return (
+      _arrayWithoutHoles(r) ||
+      _iterableToArray(r) ||
+      _unsupportedIterableToArray(r) ||
+      _nonIterableSpread()
+    )
+  }
+
   /**
    * The base implementation of `_.findIndex` and `_.findLastIndex` without
    * support for iteratee shorthands.
@@ -47826,17 +47826,9 @@
   }
 
   var _excluded$6 = ['date', 'className']
-  var eventsForWeek = function eventsForWeek(
-    evts,
-    start,
-    end,
-    accessors,
-    localizer
-  ) {
-    return evts.filter(function (e) {
-      return inRange(e, start, end, accessors, localizer)
-    })
-  }
+
+  // let eventsForWeek = (evts, start, end, accessors, localizer) =>
+  //   evts.filter((e) => inRange(e, start, end, accessors, localizer))
   var MonthView = /*#__PURE__*/ (function (_React$Component) {
     function MonthView() {
       var _this
@@ -47858,9 +47850,8 @@
       _this.getContainer = function () {
         return _this.containerRef.current
       }
-      _this.renderWeek = function (week, weekIdx) {
+      _this.renderWeek = function (week, weekIdx, weeksEvents) {
         var _this$props = _this.props,
-          events = _this$props.events,
           components = _this$props.components,
           selectable = _this$props.selectable,
           getNow = _this$props.getNow,
@@ -47877,13 +47868,14 @@
           rowLimit = _this$state.rowLimit
 
         // let's not mutate props
-        var weeksEvents = eventsForWeek(
-          _toConsumableArray(events),
-          week[0],
-          week[week.length - 1],
-          accessors,
-          localizer
-        )
+        // const weeksEvents = eventsForWeek(
+        //   [...events],
+        //   week[0],
+        //   week[week.length - 1],
+        //   accessors,
+        //   localizer
+        // )
+
         var sorted = monthViewNoSortEvents
           ? weeksEvents
           : sortWeekEvents(weeksEvents, accessors, localizer)
@@ -48082,6 +48074,7 @@
         {
           key: 'render',
           value: function render() {
+            var _this3 = this
             var _this$props4 = this.props,
               date = _this$props4.date,
               localizer = _this$props4.localizer,
@@ -48090,6 +48083,25 @@
               weeks = chunk_1(month, 7)
             this._weekCount = weeks.length
             console.info('render', date, weeks, this.state)
+
+            // PERF: In previous implementation, we loop the events 5 times for a month.
+            //       We can try to optimize by looping only once.
+            var _this$props5 = this.props,
+              events = _this$props5.events,
+              accessors = _this$props5.accessors
+            var allWeeksEvents = []
+            events.forEach(function (e) {
+              for (var i = 0; i < weeks.length; i++) {
+                var week = weeks[i]
+                var weekStart = week[0]
+                var weekEnd = week[week.length - 1]
+                if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+                  allWeeksEvents[i] = allWeeksEvents[i] || []
+                  allWeeksEvents[i].push(e)
+                  break
+                }
+              }
+            })
             return /*#__PURE__*/ React.createElement(
               'div',
               {
@@ -48106,7 +48118,9 @@
                 },
                 this.renderHeaders(weeks[0])
               ),
-              weeks.map(this.renderWeek),
+              weeks.map(function (w, i) {
+                return _this3.renderWeek(w, i, allWeeksEvents[i])
+              }),
               this.props.popup && this.renderOverlay()
             )
           },
@@ -48114,9 +48128,9 @@
         {
           key: 'renderHeaders',
           value: function renderHeaders(row) {
-            var _this$props5 = this.props,
-              localizer = _this$props5.localizer,
-              components = _this$props5.components
+            var _this$props6 = this.props,
+              localizer = _this$props6.localizer,
+              components = _this$props6.components
             var first = row[0]
             var last = row[row.length - 1]
             var HeaderComponent = components.header || Header
@@ -48142,7 +48156,7 @@
           value: function renderOverlay() {
             var _this$state$overlay,
               _this$state2,
-              _this3 = this
+              _this4 = this
             var overlay =
               (_this$state$overlay =
                 (_this$state2 = this.state) === null || _this$state2 === void 0
@@ -48151,16 +48165,16 @@
               _this$state$overlay !== void 0
                 ? _this$state$overlay
                 : {}
-            var _this$props6 = this.props,
-              accessors = _this$props6.accessors,
-              localizer = _this$props6.localizer,
-              components = _this$props6.components,
-              getters = _this$props6.getters,
-              selected = _this$props6.selected,
-              popupOffset = _this$props6.popupOffset,
-              handleDragStart = _this$props6.handleDragStart
+            var _this$props7 = this.props,
+              accessors = _this$props7.accessors,
+              localizer = _this$props7.localizer,
+              components = _this$props7.components,
+              getters = _this$props7.getters,
+              selected = _this$props7.selected,
+              popupOffset = _this$props7.popupOffset,
+              handleDragStart = _this$props7.handleDragStart
             var onHide = function onHide() {
-              return _this3.setState({
+              return _this4.setState({
                 overlay: null,
               })
             }
@@ -50169,6 +50183,14 @@
     var label = _ref.label
     return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
   }
+  ResourceHeader.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+          index: propTypesExports.number,
+          resource: propTypesExports.object,
+        }
+      : {}
 
   var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
     function TimeGridHeader() {
@@ -51677,6 +51699,17 @@
       },
     ])
   })(React.Component)
+  WorkWeek.propTypes =
+    'development' !== 'production'
+      ? {
+          date: propTypesExports.instanceOf(Date).isRequired,
+          localizer: propTypesExports.any,
+          min: propTypesExports.instanceOf(Date),
+          max: propTypesExports.instanceOf(Date),
+          scrollToTime: propTypesExports.instanceOf(Date),
+          enableAutoScroll: propTypesExports.bool,
+        }
+      : {}
   WorkWeek.defaultProps = TimeGrid.defaultProps
   WorkWeek.range = workWeekRange
   WorkWeek.navigate = Week.navigate

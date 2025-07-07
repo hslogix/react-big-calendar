@@ -18,8 +18,8 @@ import DateHeader from './DateHeader'
 
 import { inRange, sortWeekEvents } from './utils/eventLevels'
 
-let eventsForWeek = (evts, start, end, accessors, localizer) =>
-  evts.filter((e) => inRange(e, start, end, accessors, localizer))
+// let eventsForWeek = (evts, start, end, accessors, localizer) =>
+//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
 class MonthView extends React.Component {
   constructor(...args) {
@@ -100,6 +100,25 @@ class MonthView extends React.Component {
     this._weekCount = weeks.length
     console.info('render', date, weeks, this.state)
 
+    // PERF: In previous implementation, we loop the events 5 times for a month.
+    //       We can try to optimize by looping only once.
+    const { events, accessors } = this.props
+    let allWeeksEvents = []
+
+    events.forEach((e) => {
+      for (let i = 0; i < weeks.length; i++) {
+        const week = weeks[i]
+        const weekStart = week[0]
+        const weekEnd = week[week.length - 1]
+
+        if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+          allWeeksEvents[i] = allWeeksEvents[i] || []
+          allWeeksEvents[i].push(e)
+          break
+        }
+      }
+    })
+
     return (
       <div
         className={clsx('rbc-month-view', className)}
@@ -110,15 +129,15 @@ class MonthView extends React.Component {
         <div className="rbc-row rbc-month-header" role="row">
           {this.renderHeaders(weeks[0])}
         </div>
-        {weeks.map(this.renderWeek)}
+        {weeks.map((w, i) => this.renderWeek(w, i, allWeeksEvents[i]))}
         {this.props.popup && this.renderOverlay()}
       </div>
     )
   }
 
-  renderWeek = (week, weekIdx) => {
+  renderWeek = (week, weekIdx, weeksEvents) => {
     let {
-      events,
+      // events,
       components,
       selectable,
       getNow,
@@ -135,13 +154,13 @@ class MonthView extends React.Component {
     const { needLimitMeasure, rowLimit } = this.state
 
     // let's not mutate props
-    const weeksEvents = eventsForWeek(
-      [...events],
-      week[0],
-      week[week.length - 1],
-      accessors,
-      localizer
-    )
+    // const weeksEvents = eventsForWeek(
+    //   [...events],
+    //   week[0],
+    //   week[week.length - 1],
+    //   accessors,
+    //   localizer
+    // )
 
     const sorted = monthViewNoSortEvents
       ? weeksEvents

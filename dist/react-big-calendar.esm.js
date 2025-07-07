@@ -37,7 +37,6 @@ import {
   minutes,
 } from 'date-arithmetic'
 import _defineProperty from '@babel/runtime/helpers/esm/defineProperty'
-import _toConsumableArray from '@babel/runtime/helpers/esm/toConsumableArray'
 import chunk from 'lodash/chunk'
 import getPosition$1 from 'dom-helpers/position'
 import * as animationFrame from 'dom-helpers/animationFrame'
@@ -49,6 +48,7 @@ import qsa from 'dom-helpers/querySelectorAll'
 import contains from 'dom-helpers/contains'
 import closest from 'dom-helpers/closest'
 import listen from 'dom-helpers/listen'
+import _toConsumableArray from '@babel/runtime/helpers/esm/toConsumableArray'
 import findIndex from 'lodash/findIndex'
 import range$1 from 'lodash/range'
 import memoize from 'memoize-one'
@@ -2621,17 +2621,9 @@ var DateHeader = function DateHeader(_ref) {
 }
 
 var _excluded$6 = ['date', 'className']
-var eventsForWeek = function eventsForWeek(
-  evts,
-  start,
-  end,
-  accessors,
-  localizer
-) {
-  return evts.filter(function (e) {
-    return inRange(e, start, end, accessors, localizer)
-  })
-}
+
+// let eventsForWeek = (evts, start, end, accessors, localizer) =>
+//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
 var MonthView = /*#__PURE__*/ (function (_React$Component) {
   function MonthView() {
     var _this
@@ -2653,9 +2645,8 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     _this.getContainer = function () {
       return _this.containerRef.current
     }
-    _this.renderWeek = function (week, weekIdx) {
+    _this.renderWeek = function (week, weekIdx, weeksEvents) {
       var _this$props = _this.props,
-        events = _this$props.events,
         components = _this$props.components,
         selectable = _this$props.selectable,
         getNow = _this$props.getNow,
@@ -2672,13 +2663,14 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         rowLimit = _this$state.rowLimit
 
       // let's not mutate props
-      var weeksEvents = eventsForWeek(
-        _toConsumableArray(events),
-        week[0],
-        week[week.length - 1],
-        accessors,
-        localizer
-      )
+      // const weeksEvents = eventsForWeek(
+      //   [...events],
+      //   week[0],
+      //   week[week.length - 1],
+      //   accessors,
+      //   localizer
+      // )
+
       var sorted = monthViewNoSortEvents
         ? weeksEvents
         : sortWeekEvents(weeksEvents, accessors, localizer)
@@ -2876,6 +2868,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'render',
         value: function render() {
+          var _this3 = this
           var _this$props4 = this.props,
             date = _this$props4.date,
             localizer = _this$props4.localizer,
@@ -2884,6 +2877,25 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             weeks = chunk(month, 7)
           this._weekCount = weeks.length
           console.info('render', date, weeks, this.state)
+
+          // PERF: In previous implementation, we loop the events 5 times for a month.
+          //       We can try to optimize by looping only once.
+          var _this$props5 = this.props,
+            events = _this$props5.events,
+            accessors = _this$props5.accessors
+          var allWeeksEvents = []
+          events.forEach(function (e) {
+            for (var i = 0; i < weeks.length; i++) {
+              var week = weeks[i]
+              var weekStart = week[0]
+              var weekEnd = week[week.length - 1]
+              if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+                allWeeksEvents[i] = allWeeksEvents[i] || []
+                allWeeksEvents[i].push(e)
+                break
+              }
+            }
+          })
           return /*#__PURE__*/ React.createElement(
             'div',
             {
@@ -2900,7 +2912,9 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
               },
               this.renderHeaders(weeks[0])
             ),
-            weeks.map(this.renderWeek),
+            weeks.map(function (w, i) {
+              return _this3.renderWeek(w, i, allWeeksEvents[i])
+            }),
             this.props.popup && this.renderOverlay()
           )
         },
@@ -2908,9 +2922,9 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'renderHeaders',
         value: function renderHeaders(row) {
-          var _this$props5 = this.props,
-            localizer = _this$props5.localizer,
-            components = _this$props5.components
+          var _this$props6 = this.props,
+            localizer = _this$props6.localizer,
+            components = _this$props6.components
           var first = row[0]
           var last = row[row.length - 1]
           var HeaderComponent = components.header || Header
@@ -2936,7 +2950,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function renderOverlay() {
           var _this$state$overlay,
             _this$state2,
-            _this3 = this
+            _this4 = this
           var overlay =
             (_this$state$overlay =
               (_this$state2 = this.state) === null || _this$state2 === void 0
@@ -2945,16 +2959,16 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             _this$state$overlay !== void 0
               ? _this$state$overlay
               : {}
-          var _this$props6 = this.props,
-            accessors = _this$props6.accessors,
-            localizer = _this$props6.localizer,
-            components = _this$props6.components,
-            getters = _this$props6.getters,
-            selected = _this$props6.selected,
-            popupOffset = _this$props6.popupOffset,
-            handleDragStart = _this$props6.handleDragStart
+          var _this$props7 = this.props,
+            accessors = _this$props7.accessors,
+            localizer = _this$props7.localizer,
+            components = _this$props7.components,
+            getters = _this$props7.getters,
+            selected = _this$props7.selected,
+            popupOffset = _this$props7.popupOffset,
+            handleDragStart = _this$props7.handleDragStart
           var onHide = function onHide() {
-            return _this3.setState({
+            return _this4.setState({
               overlay: null,
             })
           }
@@ -3653,6 +3667,16 @@ var TimeSlotGroup = /*#__PURE__*/ (function (_Component) {
     },
   ])
 })(Component)
+TimeSlotGroup.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        renderSlot: PropTypes.func,
+        group: PropTypes.array.isRequired,
+        resource: PropTypes.any,
+        components: PropTypes.object,
+        getters: PropTypes.object,
+      }
+    : {}
 
 function stringifyPercent(v) {
   return typeof v === 'string' ? v : v + '%'
@@ -5805,6 +5829,17 @@ var WorkWeek = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
+WorkWeek.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        date: PropTypes.instanceOf(Date).isRequired,
+        localizer: PropTypes.any,
+        min: PropTypes.instanceOf(Date),
+        max: PropTypes.instanceOf(Date),
+        scrollToTime: PropTypes.instanceOf(Date),
+        enableAutoScroll: PropTypes.bool,
+      }
+    : {}
 WorkWeek.defaultProps = TimeGrid.defaultProps
 WorkWeek.range = workWeekRange
 WorkWeek.navigate = Week.navigate
