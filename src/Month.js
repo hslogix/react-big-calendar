@@ -113,7 +113,7 @@ class MonthView extends React.Component {
         for (let i = 0; i < this._weekCount; i++) {
           const week = weeks[i]
           const weekStart = week[0]
-          const weekEnd = week[this._weekCount - 1]
+          const weekEnd = week[week.length - 1]
 
           if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
             allWeeksEvents[i].push(e)

@@ -48123,7 +48123,7 @@
                 for (var i = 0; i < this._weekCount; i++) {
                   var week = weeks[i]
                   var weekStart = week[0]
-                  var weekEnd = week[this._weekCount - 1]
+                  var weekEnd = week[week.length - 1]
                   if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
                     allWeeksEvents[i].push(e)
                     break
