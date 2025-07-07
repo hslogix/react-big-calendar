@@ -103,7 +103,7 @@ class MonthView extends React.Component {
     // PERF: In previous implementation, we loop the events 5 times for a month.
     //       We can try to optimize by looping only once.
     const { events, accessors } = this.props
-    let allWeeksEvents = []
+    let allWeeksEvents = [[], [], [], [], [], []]
 
     events.forEach((e) => {
       for (let i = 0; i < weeks.length; i++) {
@@ -112,12 +112,13 @@ class MonthView extends React.Component {
         const weekEnd = week[week.length - 1]
 
         if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-          allWeeksEvents[i] = allWeeksEvents[i] || []
           allWeeksEvents[i].push(e)
           break
         }
       }
     })
+
+    console.info('render allWeeksEvents', allWeeksEvents)
 
     return (
       <div
@@ -165,7 +166,7 @@ class MonthView extends React.Component {
     const sorted = monthViewNoSortEvents
       ? weeksEvents
       : sortWeekEvents(weeksEvents, accessors, localizer)
-    console.info('renderWeek', weekIdx, sorted)
+    console.info('renderWeek', weekIdx, sorted, weeksEvents)
 
     return (
       <DateContentRow

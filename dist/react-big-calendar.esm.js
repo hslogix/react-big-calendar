@@ -2601,6 +2601,12 @@ var Header = function Header(_ref) {
     label
   )
 }
+Header.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+      }
+    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -2674,7 +2680,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       var sorted = monthViewNoSortEvents
         ? weeksEvents
         : sortWeekEvents(weeksEvents, accessors, localizer)
-      console.info('renderWeek', weekIdx, sorted)
+      console.info('renderWeek', weekIdx, sorted, weeksEvents)
       return /*#__PURE__*/ React.createElement(DateContentRow, {
         key: weekIdx,
         ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -2883,19 +2889,19 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var _this$props5 = this.props,
             events = _this$props5.events,
             accessors = _this$props5.accessors
-          var allWeeksEvents = []
+          var allWeeksEvents = [[], [], [], [], [], []]
           events.forEach(function (e) {
             for (var i = 0; i < weeks.length; i++) {
               var week = weeks[i]
               var weekStart = week[0]
               var weekEnd = week[week.length - 1]
               if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-                allWeeksEvents[i] = allWeeksEvents[i] || []
                 allWeeksEvents[i].push(e)
                 break
               }
             }
           })
+          console.info('render allWeeksEvents', allWeeksEvents)
           return /*#__PURE__*/ React.createElement(
             'div',
             {
@@ -3667,16 +3673,6 @@ var TimeSlotGroup = /*#__PURE__*/ (function (_Component) {
     },
   ])
 })(Component)
-TimeSlotGroup.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        renderSlot: PropTypes.func,
-        group: PropTypes.array.isRequired,
-        resource: PropTypes.any,
-        components: PropTypes.object,
-        getters: PropTypes.object,
-      }
-    : {}
 
 function stringifyPercent(v) {
   return typeof v === 'string' ? v : v + '%'
@@ -5829,17 +5825,6 @@ var WorkWeek = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
-WorkWeek.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        date: PropTypes.instanceOf(Date).isRequired,
-        localizer: PropTypes.any,
-        min: PropTypes.instanceOf(Date),
-        max: PropTypes.instanceOf(Date),
-        scrollToTime: PropTypes.instanceOf(Date),
-        enableAutoScroll: PropTypes.bool,
-      }
-    : {}
 WorkWeek.defaultProps = TimeGrid.defaultProps
 WorkWeek.range = workWeekRange
 WorkWeek.navigate = Week.navigate

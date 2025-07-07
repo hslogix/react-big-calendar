@@ -47806,6 +47806,12 @@
       label
     )
   }
+  Header.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+        }
+      : {}
 
   var DateHeader = function DateHeader(_ref) {
     var label = _ref.label,
@@ -47824,6 +47830,16 @@
       label
     )
   }
+  DateHeader.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+          date: propTypesExports.instanceOf(Date),
+          drilldownView: propTypesExports.string,
+          onDrillDown: propTypesExports.func,
+          isOffRange: propTypesExports.bool,
+        }
+      : {}
 
   var _excluded$6 = ['date', 'className']
 
@@ -47879,7 +47895,7 @@
         var sorted = monthViewNoSortEvents
           ? weeksEvents
           : sortWeekEvents(weeksEvents, accessors, localizer)
-        console.info('renderWeek', weekIdx, sorted)
+        console.info('renderWeek', weekIdx, sorted, weeksEvents)
         return /*#__PURE__*/ React.createElement(DateContentRow, {
           key: weekIdx,
           ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -48089,19 +48105,19 @@
             var _this$props5 = this.props,
               events = _this$props5.events,
               accessors = _this$props5.accessors
-            var allWeeksEvents = []
+            var allWeeksEvents = [[], [], [], [], [], []]
             events.forEach(function (e) {
               for (var i = 0; i < weeks.length; i++) {
                 var week = weeks[i]
                 var weekStart = week[0]
                 var weekEnd = week[week.length - 1]
                 if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-                  allWeeksEvents[i] = allWeeksEvents[i] || []
                   allWeeksEvents[i].push(e)
                   break
                 }
               }
             })
+            console.info('render allWeeksEvents', allWeeksEvents)
             return /*#__PURE__*/ React.createElement(
               'div',
               {
@@ -51699,17 +51715,6 @@
       },
     ])
   })(React.Component)
-  WorkWeek.propTypes =
-    'development' !== 'production'
-      ? {
-          date: propTypesExports.instanceOf(Date).isRequired,
-          localizer: propTypesExports.any,
-          min: propTypesExports.instanceOf(Date),
-          max: propTypesExports.instanceOf(Date),
-          scrollToTime: propTypesExports.instanceOf(Date),
-          enableAutoScroll: propTypesExports.bool,
-        }
-      : {}
   WorkWeek.defaultProps = TimeGrid.defaultProps
   WorkWeek.range = workWeekRange
   WorkWeek.navigate = Week.navigate
