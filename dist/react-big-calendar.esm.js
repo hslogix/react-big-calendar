@@ -2904,7 +2904,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var allWeeksEvents = monthViewWeekOptimization
             ? Array.from(
                 {
-                  length: this._weekCount,
+                  length: weeks.length,
                 },
                 function () {
                   return []
@@ -2913,7 +2913,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             : null
           if (monthViewWeekOptimization) {
             events.forEach(function (e) {
-              for (var i = 0; i < _this3._weekCount; i++) {
+              for (var i = 0; i < weeks.length; i++) {
                 var week = weeks[i]
                 var weekStart = week[0]
                 var weekEnd = week[week.length - 1]
@@ -2924,9 +2924,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
               }
             })
           }
-
-          // console.info('render allWeeksEvents', allWeeksEvents)
-
+          console.info('render allWeeksEvents', allWeeksEvents)
           return /*#__PURE__*/ React.createElement(
             'div',
             {

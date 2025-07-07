@@ -48110,7 +48110,7 @@
             var allWeeksEvents = monthViewWeekOptimization
               ? Array.from(
                   {
-                    length: this._weekCount,
+                    length: weeks.length,
                   },
                   function () {
                     return []
@@ -48119,7 +48119,7 @@
               : null
             if (monthViewWeekOptimization) {
               events.forEach(function (e) {
-                for (var i = 0; i < _this3._weekCount; i++) {
+                for (var i = 0; i < weeks.length; i++) {
                   var week = weeks[i]
                   var weekStart = week[0]
                   var weekEnd = week[week.length - 1]
@@ -48130,9 +48130,7 @@
                 }
               })
             }
-
-            // console.info('render allWeeksEvents', allWeeksEvents)
-
+            console.info('render allWeeksEvents', allWeeksEvents)
             return /*#__PURE__*/ React.createElement(
               'div',
               {
@@ -50214,14 +50212,6 @@
     var label = _ref.label
     return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
   }
-  ResourceHeader.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-          index: propTypesExports.number,
-          resource: propTypesExports.object,
-        }
-      : {}
 
   var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
     function TimeGridHeader() {

@@ -104,12 +104,12 @@ class MonthView extends React.Component {
     //       month. We can try to optimize by looping only once.
     const { events, accessors, monthViewWeekOptimization } = this.props
     let allWeeksEvents = monthViewWeekOptimization
-      ? Array.from({ length: this._weekCount }, () => [])
+      ? Array.from({ length: weeks.length }, () => [])
       : null
 
     if (monthViewWeekOptimization) {
       events.forEach((e) => {
-        for (let i = 0; i < this._weekCount; i++) {
+        for (let i = 0; i < weeks.length; i++) {
           const week = weeks[i]
           const weekStart = week[0]
           const weekEnd = week[week.length - 1]
@@ -122,7 +122,7 @@ class MonthView extends React.Component {
       })
     }
 
-    // console.info('render allWeeksEvents', allWeeksEvents)
+    console.info('render allWeeksEvents', allWeeksEvents)
 
     return (
       <div
