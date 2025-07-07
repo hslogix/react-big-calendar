@@ -2691,7 +2691,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       var sorted = monthViewNoSortEvents
         ? weeksEvents
         : sortWeekEvents(weeksEvents, accessors, localizer)
-      console.info('renderWeek', weekIdx, sorted, weeksEvents)
+      console.info('renderWeek', weekIdx, sorted)
       return /*#__PURE__*/ React.createElement(DateContentRow, {
         key: weekIdx,
         ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -2924,7 +2924,9 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
               }
             })
           }
-          console.info('render allWeeksEvents', allWeeksEvents)
+
+          // console.info('render allWeeksEvents', allWeeksEvents)
+
           return /*#__PURE__*/ React.createElement(
             'div',
             {

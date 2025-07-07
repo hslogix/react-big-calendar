@@ -47896,7 +47896,7 @@
         var sorted = monthViewNoSortEvents
           ? weeksEvents
           : sortWeekEvents(weeksEvents, accessors, localizer)
-        console.info('renderWeek', weekIdx, sorted, weeksEvents)
+        console.info('renderWeek', weekIdx, sorted)
         return /*#__PURE__*/ React.createElement(DateContentRow, {
           key: weekIdx,
           ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -48130,7 +48130,9 @@
                 }
               })
             }
-            console.info('render allWeeksEvents', allWeeksEvents)
+
+            // console.info('render allWeeksEvents', allWeeksEvents)
+
             return /*#__PURE__*/ React.createElement(
               'div',
               {
@@ -50212,6 +50214,14 @@
     var label = _ref.label
     return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
   }
+  ResourceHeader.propTypes =
+    'development' !== 'production'
+      ? {
+          label: propTypesExports.node,
+          index: propTypesExports.number,
+          resource: propTypesExports.object,
+        }
+      : {}
 
   var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
     function TimeGridHeader() {

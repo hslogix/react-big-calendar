@@ -122,7 +122,7 @@ class MonthView extends React.Component {
       })
     }
 
-    console.info('render allWeeksEvents', allWeeksEvents)
+    // console.info('render allWeeksEvents', allWeeksEvents)
 
     return (
       <div
@@ -179,7 +179,7 @@ class MonthView extends React.Component {
     const sorted = monthViewNoSortEvents
       ? weeksEvents
       : sortWeekEvents(weeksEvents, accessors, localizer)
-    console.info('renderWeek', weekIdx, sorted, weeksEvents)
+    console.info('renderWeek', weekIdx, sorted)
 
     return (
       <DateContentRow
