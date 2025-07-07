@@ -5871,6 +5871,33 @@
     return _objectSpread2(_objectSpread2({}, defaultMessages), msgs)
   }
 
+  function _arrayWithoutHoles(r) {
+    if (Array.isArray(r)) return _arrayLikeToArray(r)
+  }
+
+  function _iterableToArray(r) {
+    if (
+      ('undefined' != typeof Symbol && null != r[Symbol.iterator]) ||
+      null != r['@@iterator']
+    )
+      return Array.from(r)
+  }
+
+  function _nonIterableSpread() {
+    throw new TypeError(
+      'Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
+    )
+  }
+
+  function _toConsumableArray(r) {
+    return (
+      _arrayWithoutHoles(r) ||
+      _iterableToArray(r) ||
+      _unsupportedIterableToArray(r) ||
+      _nonIterableSpread()
+    )
+  }
+
   /**
    * The base implementation of `_.slice` without an iteratee call guard.
    *
@@ -46061,33 +46088,6 @@
   })(React.Component)
   EventRow.defaultProps = _objectSpread2({}, EventRowMixin.defaultProps)
 
-  function _arrayWithoutHoles(r) {
-    if (Array.isArray(r)) return _arrayLikeToArray(r)
-  }
-
-  function _iterableToArray(r) {
-    if (
-      ('undefined' != typeof Symbol && null != r[Symbol.iterator]) ||
-      null != r['@@iterator']
-    )
-      return Array.from(r)
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError(
-      'Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.'
-    )
-  }
-
-  function _toConsumableArray(r) {
-    return (
-      _arrayWithoutHoles(r) ||
-      _iterableToArray(r) ||
-      _unsupportedIterableToArray(r) ||
-      _nonIterableSpread()
-    )
-  }
-
   /**
    * The base implementation of `_.findIndex` and `_.findLastIndex` without
    * support for iteratee shorthands.
@@ -47826,9 +47826,17 @@
   }
 
   var _excluded$6 = ['date', 'className']
-
-  // let eventsForWeek = (evts, start, end, accessors, localizer) =>
-  //   evts.filter((e) => inRange(e, start, end, accessors, localizer))
+  var eventsForWeek = function eventsForWeek(
+    evts,
+    start,
+    end,
+    accessors,
+    localizer
+  ) {
+    return evts.filter(function (e) {
+      return inRange(e, start, end, accessors, localizer)
+    })
+  }
   var MonthView = /*#__PURE__*/ (function (_React$Component) {
     function MonthView() {
       var _this
@@ -47850,8 +47858,9 @@
       _this.getContainer = function () {
         return _this.containerRef.current
       }
-      _this.renderWeek = function (week, weekIdx, weeksEvents) {
+      _this.renderWeek = function (week, weekIdx, allWeeksEvents) {
         var _this$props = _this.props,
+          events = _this$props.events,
           components = _this$props.components,
           selectable = _this$props.selectable,
           getNow = _this$props.getNow,
@@ -47875,7 +47884,15 @@
         //   accessors,
         //   localizer
         // )
-
+        var weeksEvents = allWeeksEvents
+          ? allWeeksEvents[weekIdx]
+          : eventsForWeek(
+              _toConsumableArray(events),
+              week[0],
+              week[week.length - 1],
+              accessors,
+              localizer
+            )
         var sorted = monthViewNoSortEvents
           ? weeksEvents
           : sortWeekEvents(weeksEvents, accessors, localizer)
@@ -48088,21 +48105,31 @@
             //       month. We can try to optimize by looping only once.
             var _this$props5 = this.props,
               events = _this$props5.events,
-              accessors = _this$props5.accessors
-            var allWeeksEvents = [] //Array.from({ length: this._weekCount }, () => [])
-
-            events.forEach(function (e) {
-              for (var i = 0; i < _this3._weekCount; i++) {
-                var week = weeks[i]
-                var weekStart = week[0]
-                var weekEnd = week[week.length - 1]
-                if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-                  if (!allWeeksEvents[i]) allWeeksEvents[i] = []
-                  allWeeksEvents[i].push(e)
-                  break
+              accessors = _this$props5.accessors,
+              monthViewWeekOptimization = _this$props5.monthViewWeekOptimization
+            var allWeeksEvents = monthViewWeekOptimization
+              ? Array.from(
+                  {
+                    length: this._weekCount,
+                  },
+                  function () {
+                    return []
+                  }
+                )
+              : null
+            if (monthViewWeekOptimization) {
+              events.forEach(function (e) {
+                for (var i = 0; i < _this3._weekCount; i++) {
+                  var week = weeks[i]
+                  var weekStart = week[0]
+                  var weekEnd = week[week.length - 1]
+                  if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+                    allWeeksEvents[i].push(e)
+                    break
+                  }
                 }
-              }
-            })
+              })
+            }
             console.info('render allWeeksEvents', allWeeksEvents)
             return /*#__PURE__*/ React.createElement(
               'div',
@@ -48121,7 +48148,7 @@
                 this.renderHeaders(weeks[0])
               ),
               weeks.map(function (w, i) {
-                return _this3.renderWeek(w, i, allWeeksEvents[i])
+                return _this3.renderWeek(w, i, allWeeksEvents)
               }),
               this.props.popup && this.renderOverlay()
             )

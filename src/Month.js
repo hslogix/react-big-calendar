@@ -18,8 +18,8 @@ import DateHeader from './DateHeader'
 
 import { inRange, sortWeekEvents } from './utils/eventLevels'
 
-// let eventsForWeek = (evts, start, end, accessors, localizer) =>
-//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
+let eventsForWeek = (evts, start, end, accessors, localizer) =>
+  evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
 class MonthView extends React.Component {
   constructor(...args) {
@@ -102,22 +102,25 @@ class MonthView extends React.Component {
 
     // PERF: In previous implementation, we loop the events multiple times for a
     //       month. We can try to optimize by looping only once.
-    const { events, accessors } = this.props
-    let allWeeksEvents = [] //Array.from({ length: this._weekCount }, () => [])
+    const { events, accessors, monthViewWeekOptimization } = this.props
+    let allWeeksEvents = monthViewWeekOptimization
+      ? Array.from({ length: this._weekCount }, () => [])
+      : null
 
-    events.forEach((e) => {
-      for (let i = 0; i < this._weekCount; i++) {
-        const week = weeks[i]
-        const weekStart = week[0]
-        const weekEnd = week[week.length - 1]
+    if (monthViewWeekOptimization) {
+      events.forEach((e) => {
+        for (let i = 0; i < this._weekCount; i++) {
+          const week = weeks[i]
+          const weekStart = week[0]
+          const weekEnd = week[week.length - 1]
 
-        if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-          if (!allWeeksEvents[i]) allWeeksEvents[i] = []
-          allWeeksEvents[i].push(e)
-          break
+          if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+            allWeeksEvents[i].push(e)
+            break
+          }
         }
-      }
-    })
+      })
+    }
 
     console.info('render allWeeksEvents', allWeeksEvents)
 
@@ -131,15 +134,15 @@ class MonthView extends React.Component {
         <div className="rbc-row rbc-month-header" role="row">
           {this.renderHeaders(weeks[0])}
         </div>
-        {weeks.map((w, i) => this.renderWeek(w, i, allWeeksEvents[i]))}
+        {weeks.map((w, i) => this.renderWeek(w, i, allWeeksEvents))}
         {this.props.popup && this.renderOverlay()}
       </div>
     )
   }
 
-  renderWeek = (week, weekIdx, weeksEvents) => {
+  renderWeek = (week, weekIdx, allWeeksEvents) => {
     let {
-      // events,
+      events,
       components,
       selectable,
       getNow,
@@ -163,6 +166,15 @@ class MonthView extends React.Component {
     //   accessors,
     //   localizer
     // )
+    const weeksEvents = allWeeksEvents
+      ? allWeeksEvents[weekIdx]
+      : eventsForWeek(
+          [...events],
+          week[0],
+          week[week.length - 1],
+          accessors,
+          localizer
+        )
 
     const sorted = monthViewNoSortEvents
       ? weeksEvents

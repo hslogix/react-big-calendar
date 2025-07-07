@@ -37,6 +37,7 @@ import {
   minutes,
 } from 'date-arithmetic'
 import _defineProperty from '@babel/runtime/helpers/esm/defineProperty'
+import _toConsumableArray from '@babel/runtime/helpers/esm/toConsumableArray'
 import chunk from 'lodash/chunk'
 import getPosition$1 from 'dom-helpers/position'
 import * as animationFrame from 'dom-helpers/animationFrame'
@@ -48,7 +49,6 @@ import qsa from 'dom-helpers/querySelectorAll'
 import contains from 'dom-helpers/contains'
 import closest from 'dom-helpers/closest'
 import listen from 'dom-helpers/listen'
-import _toConsumableArray from '@babel/runtime/helpers/esm/toConsumableArray'
 import findIndex from 'lodash/findIndex'
 import range$1 from 'lodash/range'
 import memoize from 'memoize-one'
@@ -2621,9 +2621,17 @@ var DateHeader = function DateHeader(_ref) {
 }
 
 var _excluded$6 = ['date', 'className']
-
-// let eventsForWeek = (evts, start, end, accessors, localizer) =>
-//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
+var eventsForWeek = function eventsForWeek(
+  evts,
+  start,
+  end,
+  accessors,
+  localizer
+) {
+  return evts.filter(function (e) {
+    return inRange(e, start, end, accessors, localizer)
+  })
+}
 var MonthView = /*#__PURE__*/ (function (_React$Component) {
   function MonthView() {
     var _this
@@ -2645,8 +2653,9 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     _this.getContainer = function () {
       return _this.containerRef.current
     }
-    _this.renderWeek = function (week, weekIdx, weeksEvents) {
+    _this.renderWeek = function (week, weekIdx, allWeeksEvents) {
       var _this$props = _this.props,
+        events = _this$props.events,
         components = _this$props.components,
         selectable = _this$props.selectable,
         getNow = _this$props.getNow,
@@ -2670,7 +2679,15 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       //   accessors,
       //   localizer
       // )
-
+      var weeksEvents = allWeeksEvents
+        ? allWeeksEvents[weekIdx]
+        : eventsForWeek(
+            _toConsumableArray(events),
+            week[0],
+            week[week.length - 1],
+            accessors,
+            localizer
+          )
       var sorted = monthViewNoSortEvents
         ? weeksEvents
         : sortWeekEvents(weeksEvents, accessors, localizer)
@@ -2882,21 +2899,31 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           //       month. We can try to optimize by looping only once.
           var _this$props5 = this.props,
             events = _this$props5.events,
-            accessors = _this$props5.accessors
-          var allWeeksEvents = [] //Array.from({ length: this._weekCount }, () => [])
-
-          events.forEach(function (e) {
-            for (var i = 0; i < _this3._weekCount; i++) {
-              var week = weeks[i]
-              var weekStart = week[0]
-              var weekEnd = week[week.length - 1]
-              if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-                if (!allWeeksEvents[i]) allWeeksEvents[i] = []
-                allWeeksEvents[i].push(e)
-                break
+            accessors = _this$props5.accessors,
+            monthViewWeekOptimization = _this$props5.monthViewWeekOptimization
+          var allWeeksEvents = monthViewWeekOptimization
+            ? Array.from(
+                {
+                  length: this._weekCount,
+                },
+                function () {
+                  return []
+                }
+              )
+            : null
+          if (monthViewWeekOptimization) {
+            events.forEach(function (e) {
+              for (var i = 0; i < _this3._weekCount; i++) {
+                var week = weeks[i]
+                var weekStart = week[0]
+                var weekEnd = week[week.length - 1]
+                if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+                  allWeeksEvents[i].push(e)
+                  break
+                }
               }
-            }
-          })
+            })
+          }
           console.info('render allWeeksEvents', allWeeksEvents)
           return /*#__PURE__*/ React.createElement(
             'div',
@@ -2915,7 +2942,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
               this.renderHeaders(weeks[0])
             ),
             weeks.map(function (w, i) {
-              return _this3.renderWeek(w, i, allWeeksEvents[i])
+              return _this3.renderWeek(w, i, allWeeksEvents)
             }),
             this.props.popup && this.renderOverlay()
           )
