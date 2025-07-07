@@ -104,22 +104,23 @@ class MonthView extends React.Component {
     //       month. We can try to optimize by looping only once.
     const { events, accessors, monthViewWeekOptimization } = this.props
     let allWeeksEvents = monthViewWeekOptimization
-      ? Array.from({ length: weeks.length }, () => [])
+      ? Array.from({ length: this._weekCount }, () => [])
       : null
 
     if (monthViewWeekOptimization) {
-      events.forEach((e) => {
-        for (let i = 0; i < weeks.length; i++) {
+      for (let j = 0; j < events.length; j++) {
+        const e = events[j]
+        for (let i = 0; i < this._weekCount; i++) {
           const week = weeks[i]
           const weekStart = week[0]
-          const weekEnd = week[week.length - 1]
+          const weekEnd = week[this._weekCount - 1]
 
           if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
             allWeeksEvents[i].push(e)
             break
           }
         }
-      })
+      }
     }
 
     console.info('render allWeeksEvents', allWeeksEvents)
@@ -134,13 +135,13 @@ class MonthView extends React.Component {
         <div className="rbc-row rbc-month-header" role="row">
           {this.renderHeaders(weeks[0])}
         </div>
-        {weeks.map((w, i) => this.renderWeek(w, i, allWeeksEvents))}
+        {weeks.map((w, i) => this.renderWeek(w, i, allWeeksEvents[i]))}
         {this.props.popup && this.renderOverlay()}
       </div>
     )
   }
 
-  renderWeek = (week, weekIdx, allWeeksEvents) => {
+  renderWeek = (week, weekIdx, currentWeekEvents) => {
     let {
       events,
       components,
@@ -166,15 +167,15 @@ class MonthView extends React.Component {
     //   accessors,
     //   localizer
     // )
-    const weeksEvents = allWeeksEvents
-      ? allWeeksEvents[weekIdx]
-      : eventsForWeek(
-          [...events],
-          week[0],
-          week[week.length - 1],
-          accessors,
-          localizer
-        )
+    const weeksEvents =
+      currentWeekEvents ||
+      eventsForWeek(
+        [...events],
+        week[0],
+        week[week.length - 1],
+        accessors,
+        localizer
+      )
 
     const sorted = monthViewNoSortEvents
       ? weeksEvents
