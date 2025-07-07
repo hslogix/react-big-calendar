@@ -1920,15 +1920,6 @@ var EventRow = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
-EventRow.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? _objectSpread(
-        {
-          segments: PropTypes.array,
-        },
-        EventRowMixin.propTypes
-      )
-    : {}
 EventRow.defaultProps = _objectSpread({}, EventRowMixin.defaultProps)
 
 function endOfRange(_ref) {
@@ -2628,16 +2619,6 @@ var DateHeader = function DateHeader(_ref) {
     label
   )
 }
-DateHeader.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-        date: PropTypes.instanceOf(Date),
-        drilldownView: PropTypes.string,
-        onDrillDown: PropTypes.func,
-        isOffRange: PropTypes.bool,
-      }
-    : {}
 
 var _excluded$6 = ['date', 'className']
 var eventsForWeek = function eventsForWeek(
@@ -2698,8 +2679,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         localizer
       )
       var sorted = sortWeekEvents(weeksEvents, accessors, localizer)
-      // console.info('renderWeek', weekIdx, sorted)
-
+      console.info('renderWeek', weekIdx, sorted)
       return /*#__PURE__*/ React.createElement(DateContentRow, {
         key: weekIdx,
         ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -2847,7 +2827,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     _this.slotRowRef = /*#__PURE__*/ createRef()
     _this._bgRows = []
     _this._pendingSelection = []
-    // console.info('MonthView constructor', this.props, this.state)
+    console.info('MonthView constructor', _this.props, _this.state)
     return _this
   }
   _inherits(MonthView, _React$Component)
@@ -2859,7 +2839,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function componentDidMount() {
           var _this2 = this
           var running
-          // console.info('MonthView componentDidMount', this.props, this.state)
+          console.info('MonthView componentDidMount', this.props, this.state)
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
           window.addEventListener(
             'resize',
@@ -2880,7 +2860,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'componentDidUpdate',
         value: function componentDidUpdate() {
-          // console.info('MonthView componentDidUpdate', this.props, this.state)
+          console.info('MonthView componentDidUpdate', this.props, this.state)
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
         },
       },
@@ -2900,8 +2880,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             month = localizer.visibleDays(date, localizer),
             weeks = chunk(month, 7)
           this._weekCount = weeks.length
-          // console.info('render', date, weeks, this.state)
-
+          console.info('render', date, weeks, this.state)
           return /*#__PURE__*/ React.createElement(
             'div',
             {
@@ -2932,8 +2911,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var first = row[0]
           var last = row[row.length - 1]
           var HeaderComponent = components.header || Header
-          // console.info('renderHeaders', first, last)
-
+          console.info('renderHeaders', first, last)
           return localizer.range(first, last, 'day').map(function (day, idx) {
             return /*#__PURE__*/ React.createElement(
               'div',
@@ -3030,13 +3008,12 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'measureRowLimit',
         value: function measureRowLimit() {
-          // console.info(
-          //   'measureRowLimit',
-          //   this.props,
-          //   this.state,
-          //   this.slotRowRef.current
-          // )
-
+          console.info(
+            'measureRowLimit',
+            this.props,
+            this.state,
+            this.slotRowRef.current
+          )
           this.setState({
             needLimitMeasure: false,
             rowLimit: this.slotRowRef.current.getRowLimit(),
@@ -3078,13 +3055,12 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function getDerivedStateFromProps(_ref2, state) {
           var date = _ref2.date,
             localizer = _ref2.localizer
-          // console.info(
-          //   'MonthView getDerivedStateFromProps',
-          //   date,
-          //   state,
-          //   localizer.neq(date, state.date, 'month')
-          // )
-
+          console.info(
+            'MonthView getDerivedStateFromProps',
+            date,
+            state,
+            localizer.neq(date, state.date, 'month')
+          )
           return {
             date: date,
             needLimitMeasure: localizer.neq(date, state.date, 'month'),
@@ -4334,14 +4310,6 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
-ResourceHeader.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-        index: PropTypes.number,
-        resource: PropTypes.object,
-      }
-    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {
