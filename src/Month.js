@@ -16,10 +16,10 @@ import DateContentRow from './DateContentRow'
 import Header from './Header'
 import DateHeader from './DateHeader'
 
-// import { inRange, sortWeekEvents } from './utils/eventLevels'
+import { inRange, sortWeekEvents } from './utils/eventLevels'
 
-// let eventsForWeek = (evts, start, end, accessors, localizer) =>
-//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
+let eventsForWeek = (evts, start, end, accessors, localizer) =>
+  evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
 class MonthView extends React.Component {
   constructor(...args) {
@@ -134,17 +134,17 @@ class MonthView extends React.Component {
     const { needLimitMeasure, rowLimit } = this.state
 
     // let's not mutate props
-    // const weeksEvents = eventsForWeek(
-    //   [...events],
-    //   week[0],
-    //   week[week.length - 1],
-    //   accessors,
-    //   localizer
-    // )
+    const weeksEvents = eventsForWeek(
+      [...events],
+      week[0],
+      week[week.length - 1],
+      accessors,
+      localizer
+    )
 
     // const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
-    const sorted = events
-    console.info('renderWeek', weekIdx, sorted)
+    const sorted = weeksEvents
+    console.info('renderWeek', weekIdx, sorted, sortWeekEvents)
 
     return (
       <DateContentRow
