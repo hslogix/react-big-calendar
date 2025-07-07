@@ -47870,7 +47870,8 @@
           longPressThreshold = _this$props.longPressThreshold,
           accessors = _this$props.accessors,
           getters = _this$props.getters,
-          showAllEvents = _this$props.showAllEvents
+          showAllEvents = _this$props.showAllEvents,
+          monthViewNoSortEvents = _this$props.monthViewNoSortEvents
         var _this$state = _this.state,
           needLimitMeasure = _this$state.needLimitMeasure,
           rowLimit = _this$state.rowLimit
@@ -47883,10 +47884,10 @@
           accessors,
           localizer
         )
-
-        // const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
-        var sorted = weeksEvents
-        console.info('renderWeek', weekIdx, sorted, sortWeekEvents)
+        var sorted = monthViewNoSortEvents
+          ? weeksEvents
+          : sortWeekEvents(weeksEvents, accessors, localizer)
+        console.info('renderWeek', weekIdx, sorted)
         return /*#__PURE__*/ React.createElement(DateContentRow, {
           key: weekIdx,
           ref: weekIdx === 0 ? _this.slotRowRef : undefined,

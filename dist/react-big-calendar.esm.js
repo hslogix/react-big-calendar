@@ -2601,12 +2601,6 @@ var Header = function Header(_ref) {
     label
   )
 }
-Header.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-      }
-    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -2671,7 +2665,8 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         longPressThreshold = _this$props.longPressThreshold,
         accessors = _this$props.accessors,
         getters = _this$props.getters,
-        showAllEvents = _this$props.showAllEvents
+        showAllEvents = _this$props.showAllEvents,
+        monthViewNoSortEvents = _this$props.monthViewNoSortEvents
       var _this$state = _this.state,
         needLimitMeasure = _this$state.needLimitMeasure,
         rowLimit = _this$state.rowLimit
@@ -2684,10 +2679,10 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         accessors,
         localizer
       )
-
-      // const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
-      var sorted = weeksEvents
-      console.info('renderWeek', weekIdx, sorted, sortWeekEvents)
+      var sorted = monthViewNoSortEvents
+        ? weeksEvents
+        : sortWeekEvents(weeksEvents, accessors, localizer)
+      console.info('renderWeek', weekIdx, sorted)
       return /*#__PURE__*/ React.createElement(DateContentRow, {
         key: weekIdx,
         ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -4318,6 +4313,14 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
+ResourceHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        index: PropTypes.number,
+        resource: PropTypes.object,
+      }
+    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {

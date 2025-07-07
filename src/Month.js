@@ -129,6 +129,7 @@ class MonthView extends React.Component {
       accessors,
       getters,
       showAllEvents,
+      monthViewNoSortEvents,
     } = this.props
 
     const { needLimitMeasure, rowLimit } = this.state
@@ -142,9 +143,10 @@ class MonthView extends React.Component {
       localizer
     )
 
-    // const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
-    const sorted = weeksEvents
-    console.info('renderWeek', weekIdx, sorted, sortWeekEvents)
+    const sorted = monthViewNoSortEvents
+      ? weeksEvents
+      : sortWeekEvents(weeksEvents, accessors, localizer)
+    console.info('renderWeek', weekIdx, sorted)
 
     return (
       <DateContentRow
