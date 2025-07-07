@@ -12,7 +12,6 @@ import React, {
   useLayoutEffect,
   useRef,
   createRef,
-  PureComponent,
   Component,
   useMemo,
   useState,
@@ -38,7 +37,6 @@ import {
   minutes,
 } from 'date-arithmetic'
 import _defineProperty from '@babel/runtime/helpers/esm/defineProperty'
-import _toConsumableArray from '@babel/runtime/helpers/esm/toConsumableArray'
 import chunk from 'lodash/chunk'
 import getPosition$1 from 'dom-helpers/position'
 import * as animationFrame from 'dom-helpers/animationFrame'
@@ -50,6 +48,7 @@ import qsa from 'dom-helpers/querySelectorAll'
 import contains from 'dom-helpers/contains'
 import closest from 'dom-helpers/closest'
 import listen from 'dom-helpers/listen'
+import '@babel/runtime/helpers/esm/toConsumableArray'
 import findIndex from 'lodash/findIndex'
 import range$1 from 'lodash/range'
 import memoize from 'memoize-one'
@@ -2010,30 +2009,6 @@ function segsOverlap(seg, otherSegs) {
     return otherSeg.left <= seg.right && otherSeg.right >= seg.left
   })
 }
-function sortWeekEvents(events, accessors, localizer) {
-  var base = _toConsumableArray(events)
-  var multiDayEvents = []
-  var standardEvents = []
-  base.forEach(function (event) {
-    var startCheck = accessors.start(event)
-    var endCheck = accessors.end(event)
-    if (localizer.daySpan(startCheck, endCheck) > 1) {
-      multiDayEvents.push(event)
-    } else {
-      standardEvents.push(event)
-    }
-  })
-  var multiSorted = multiDayEvents.sort(function (a, b) {
-    return sortEvents(a, b, accessors, localizer)
-  })
-  var standardSorted = standardEvents.sort(function (a, b) {
-    return sortEvents(a, b, accessors, localizer)
-  })
-  return [].concat(
-    _toConsumableArray(multiSorted),
-    _toConsumableArray(standardSorted)
-  )
-}
 function sortEvents(eventA, eventB, accessors, localizer) {
   var evtA = {
     start: accessors.start(eventA),
@@ -2622,18 +2597,12 @@ var DateHeader = function DateHeader(_ref) {
 }
 
 var _excluded$6 = ['date', 'className']
-var eventsForWeek = function eventsForWeek(
-  evts,
-  start,
-  end,
-  accessors,
-  localizer
-) {
-  return evts.filter(function (e) {
-    return inRange(e, start, end, accessors, localizer)
-  })
-}
-var MonthView = /*#__PURE__*/ (function (_PureComponent) {
+
+// import { inRange, sortWeekEvents } from './utils/eventLevels'
+
+// let eventsForWeek = (evts, start, end, accessors, localizer) =>
+//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
+var MonthView = /*#__PURE__*/ (function (_React$Component) {
   function MonthView() {
     var _this
     _classCallCheck(this, MonthView)
@@ -2672,14 +2641,16 @@ var MonthView = /*#__PURE__*/ (function (_PureComponent) {
         rowLimit = _this$state.rowLimit
 
       // let's not mutate props
-      var weeksEvents = eventsForWeek(
-        _toConsumableArray(events),
-        week[0],
-        week[week.length - 1],
-        accessors,
-        localizer
-      )
-      var sorted = sortWeekEvents(weeksEvents, accessors, localizer)
+      // const weeksEvents = eventsForWeek(
+      //   [...events],
+      //   week[0],
+      //   week[week.length - 1],
+      //   accessors,
+      //   localizer
+      // )
+
+      // const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
+      var sorted = events
       console.info('renderWeek', weekIdx, sorted)
       return /*#__PURE__*/ React.createElement(DateContentRow, {
         key: weekIdx,
@@ -2831,7 +2802,7 @@ var MonthView = /*#__PURE__*/ (function (_PureComponent) {
     console.info('MonthView constructor', _this.props, _this.state)
     return _this
   }
-  _inherits(MonthView, _PureComponent)
+  _inherits(MonthView, _React$Component)
   return _createClass(
     MonthView,
     [
@@ -3070,7 +3041,7 @@ var MonthView = /*#__PURE__*/ (function (_PureComponent) {
       },
     ]
   )
-})(PureComponent)
+})(React.Component)
 MonthView.range = function (date, _ref3) {
   var localizer = _ref3.localizer
   var start = localizer.firstVisibleDay(date, localizer)

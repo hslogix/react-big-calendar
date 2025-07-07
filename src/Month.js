@@ -1,4 +1,4 @@
-import React, { createRef, PureComponent } from 'react'
+import React, { createRef } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
@@ -16,12 +16,12 @@ import DateContentRow from './DateContentRow'
 import Header from './Header'
 import DateHeader from './DateHeader'
 
-import { inRange, sortWeekEvents } from './utils/eventLevels'
+// import { inRange, sortWeekEvents } from './utils/eventLevels'
 
-let eventsForWeek = (evts, start, end, accessors, localizer) =>
-  evts.filter((e) => inRange(e, start, end, accessors, localizer))
+// let eventsForWeek = (evts, start, end, accessors, localizer) =>
+//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
-class MonthView extends PureComponent {
+class MonthView extends React.Component {
   constructor(...args) {
     super(...args)
 
@@ -134,15 +134,16 @@ class MonthView extends PureComponent {
     const { needLimitMeasure, rowLimit } = this.state
 
     // let's not mutate props
-    const weeksEvents = eventsForWeek(
-      [...events],
-      week[0],
-      week[week.length - 1],
-      accessors,
-      localizer
-    )
+    // const weeksEvents = eventsForWeek(
+    //   [...events],
+    //   week[0],
+    //   week[week.length - 1],
+    //   accessors,
+    //   localizer
+    // )
 
-    const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
+    // const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
+    const sorted = events
     console.info('renderWeek', weekIdx, sorted)
 
     return (
