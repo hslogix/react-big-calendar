@@ -48108,14 +48108,7 @@
               accessors = _this$props5.accessors,
               monthViewWeekOptimization = _this$props5.monthViewWeekOptimization
             var allWeeksEvents = monthViewWeekOptimization
-              ? Array.from(
-                  {
-                    length: this._weekCount,
-                  },
-                  function () {
-                    return []
-                  }
-                )
+              ? [] // Array.from({ length: this._weekCount }, () => [])
               : null
             if (monthViewWeekOptimization) {
               for (var j = 0; j < events.length; j++) {
@@ -48125,6 +48118,7 @@
                   var weekStart = week[0]
                   var weekEnd = week[week.length - 1]
                   if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+                    allWeeksEvents[i] = allWeeksEvents[i] || []
                     allWeeksEvents[i].push(e)
                     break
                   }
