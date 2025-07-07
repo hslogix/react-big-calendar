@@ -2601,12 +2601,6 @@ var Header = function Header(_ref) {
     label
   )
 }
-Header.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-      }
-    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -2889,9 +2883,9 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var _this$props5 = this.props,
             events = _this$props5.events,
             accessors = _this$props5.accessors
-          var allWeeksEvents = [[], [], [], [], [], []]
+          var allWeeksEvents = Array(this._weekCount).fill([])
           events.forEach(function (e) {
-            for (var i = 0; i < weeks.length; i++) {
+            for (var i = 0; i < _this3._weekCount; i++) {
               var week = weeks[i]
               var weekStart = week[0]
               var weekEnd = week[week.length - 1]
@@ -4333,14 +4327,6 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
-ResourceHeader.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-        index: PropTypes.number,
-        resource: PropTypes.object,
-      }
-    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {
