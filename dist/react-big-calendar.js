@@ -48084,25 +48084,20 @@
             this._weekCount = weeks.length
             console.info('render', date, weeks, this.state)
 
-            // PERF: In previous implementation, we loop the events 5 times for a month.
-            //       We can try to optimize by looping only once.
+            // PERF: In previous implementation, we loop the events multiple times for a
+            //       month. We can try to optimize by looping only once.
             var _this$props5 = this.props,
               events = _this$props5.events,
               accessors = _this$props5.accessors
-            var allWeeksEvents = Array.from(
-              {
-                length: this._weekCount,
-              },
-              function () {
-                return []
-              }
-            )
+            var allWeeksEvents = [] //Array.from({ length: this._weekCount }, () => [])
+
             events.forEach(function (e) {
               for (var i = 0; i < _this3._weekCount; i++) {
                 var week = weeks[i]
                 var weekStart = week[0]
                 var weekEnd = week[week.length - 1]
                 if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+                  if (!allWeeksEvents[i]) allWeeksEvents[i] = []
                   allWeeksEvents[i].push(e)
                   break
                 }
