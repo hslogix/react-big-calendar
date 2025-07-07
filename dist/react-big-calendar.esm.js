@@ -636,7 +636,7 @@ var EventCell = /*#__PURE__*/ (function (_React$Component) {
         console.info('EventCell props getters:', getters)
         var userProps = {
           className: 'blah',
-          style: 'blah',
+          style: {},
         }
         var content = /*#__PURE__*/ React.createElement(
           'div',
@@ -4316,14 +4316,6 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
-ResourceHeader.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-        index: PropTypes.number,
-        resource: PropTypes.object,
-      }
-    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {

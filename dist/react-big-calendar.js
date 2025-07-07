@@ -42537,7 +42537,7 @@
           console.info('EventCell props getters:', getters)
           var userProps = {
             className: 'blah',
-            style: 'blah',
+            style: {},
           }
           var content = /*#__PURE__*/ React.createElement(
             'div',
