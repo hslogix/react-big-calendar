@@ -42532,7 +42532,13 @@
             isAllDay ||
             allDay ||
             localizer.diff(start, localizer.ceil(end, 'day'), 'day') > 1
-          var userProps = getters.eventProp(event, start, end, selected)
+
+          // let userProps = getters.eventProp(event, start, end, selected)
+          console.info('EventCell props getters:', getters)
+          var userProps = {
+            className: 'blah',
+            style: 'blah',
+          }
           var content = /*#__PURE__*/ React.createElement(
             'div',
             {
@@ -46086,15 +46092,6 @@
       },
     ])
   })(React.Component)
-  EventRow.propTypes =
-    'development' !== 'production'
-      ? _objectSpread2(
-          {
-            segments: propTypesExports.array,
-          },
-          EventRowMixin.propTypes
-        )
-      : {}
   EventRow.defaultProps = _objectSpread2({}, EventRowMixin.defaultProps)
 
   /**
@@ -47815,12 +47812,6 @@
       label
     )
   }
-  Header.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-        }
-      : {}
 
   var DateHeader = function DateHeader(_ref) {
     var label = _ref.label,
@@ -50181,14 +50172,6 @@
     var label = _ref.label
     return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
   }
-  ResourceHeader.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-          index: propTypesExports.number,
-          resource: propTypesExports.object,
-        }
-      : {}
 
   var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
     function TimeGridHeader() {
