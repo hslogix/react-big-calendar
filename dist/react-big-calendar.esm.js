@@ -2619,6 +2619,16 @@ var DateHeader = function DateHeader(_ref) {
     label
   )
 }
+DateHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        date: PropTypes.instanceOf(Date),
+        drilldownView: PropTypes.string,
+        onDrillDown: PropTypes.func,
+        isOffRange: PropTypes.bool,
+      }
+    : {}
 
 var _excluded$6 = ['date', 'className']
 var eventsForWeek = function eventsForWeek(
@@ -2933,13 +2943,10 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
                   })
                 )
               })
-              if (idx >= 0) {
-                allWeeksEvents[idx].push(e)
-                return 1 // break
-              }
+              if (idx >= 0) allWeeksEvents[idx].push(e)
             }
             for (var j = 0; j < events.length; j++) {
-              if (_loop()) break
+              _loop()
             }
           }
           console.info('render allWeeksEvents', allWeeksEvents)

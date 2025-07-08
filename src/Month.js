@@ -122,10 +122,7 @@ class MonthView extends React.Component {
           localizer.inEventRange({ event, range })
         )
 
-        if (idx >= 0) {
-          allWeeksEvents[idx].push(e)
-          break
-        }
+        if (idx >= 0) allWeeksEvents[idx].push(e)
       }
     }
 
