@@ -47837,7 +47837,7 @@
       return inRange(e, start, end, accessors, localizer)
     })
   }
-  var MonthView = /*#__PURE__*/ (function (_PureComponent) {
+  var MonthView = /*#__PURE__*/ (function (_React$Component) {
     function MonthView() {
       var _this
       _classCallCheck(this, MonthView)
@@ -48048,7 +48048,7 @@
       console.info('MonthView constructor', _this.props, _this.state)
       return _this
     }
-    _inherits(MonthView, _PureComponent)
+    _inherits(MonthView, _React$Component)
     return _createClass(
       MonthView,
       [
@@ -48126,19 +48126,26 @@
               })
               var _loop = function _loop() {
                 var e = events[j]
+                var event = {
+                  start: accessors.start(e),
+                  end: accessors.end(e),
+                }
                 var idx = ranges.findIndex(function (range) {
-                  return inRange(
-                    e,
-                    range.start,
-                    range.end,
-                    accessors,
-                    localizer
+                  return (
+                    // inRange(e, range.start, range.end, accessors, localizer)
+                    localizer.inEventRange({
+                      event: event,
+                      range: range,
+                    })
                   )
                 })
-                if (idx >= 0) allWeeksEvents[idx].push(e)
+                if (idx >= 0) {
+                  allWeeksEvents[idx].push(e)
+                  return 1 // break
+                }
               }
               for (var j = 0; j < events.length; j++) {
-                _loop()
+                if (_loop()) break
               }
             }
             console.info('render allWeeksEvents', allWeeksEvents)
@@ -48332,7 +48339,7 @@
         },
       ]
     )
-  })(reactExports.PureComponent)
+  })(React.Component)
   MonthView.range = function (date, _ref3) {
     var localizer = _ref3.localizer
     var start = localizer.firstVisibleDay(date, localizer)

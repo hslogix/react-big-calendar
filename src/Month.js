@@ -1,4 +1,4 @@
-import React, { createRef, PureComponent } from 'react'
+import React, { createRef } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
@@ -21,7 +21,7 @@ import { inRange, sortWeekEvents } from './utils/eventLevels'
 let eventsForWeek = (evts, start, end, accessors, localizer) =>
   evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
-class MonthView extends PureComponent {
+class MonthView extends React.Component {
   constructor(...args) {
     super(...args)
 
@@ -115,12 +115,17 @@ class MonthView extends PureComponent {
 
       for (let j = 0; j < events.length; j++) {
         const e = events[j]
+        const event = { start: accessors.start(e), end: accessors.end(e) }
 
         const idx = ranges.findIndex((range) =>
-          inRange(e, range.start, range.end, accessors, localizer)
+          // inRange(e, range.start, range.end, accessors, localizer)
+          localizer.inEventRange({ event, range })
         )
 
-        if (idx >= 0) allWeeksEvents[idx].push(e)
+        if (idx >= 0) {
+          allWeeksEvents[idx].push(e)
+          break
+        }
       }
     }
 
