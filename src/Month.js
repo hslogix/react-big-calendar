@@ -25,11 +25,23 @@ class MonthView extends React.Component {
   constructor(...args) {
     super(...args)
 
+    // this.state = {
+    //   rowLimit: 5,
+    //   needLimitMeasure: true,
+    //   date: null,
+    // }
+
+    // PERF: By injecting rowLimit and set needLimitMeasure to false,
+    //       we can avoid the double rendering every time the MonthView is
+    //       updated.
+    const { monthViewRowLimit } = this.props
+
     this.state = {
-      rowLimit: 5,
-      needLimitMeasure: true,
-      date: null,
+      rowLimit: monthViewRowLimit || 5,
+      needLimitMeasure: !monthViewRowLimit,
+      date: monthViewRowLimit ? this.props.date : null,
     }
+
     this.containerRef = createRef()
     this.slotRowRef = createRef()
 
@@ -82,6 +94,30 @@ class MonthView extends React.Component {
 
     this._weekCount = weeks.length
 
+    // PERF: In previous implementation, we loop the events once for each week
+    //       in the month. We can try to optimize by looping only once.
+    const { events, accessors, monthViewWeekOptimization } = this.props
+    let allWeeksEvents = monthViewWeekOptimization
+      ? Array.from({ length: this._weekCount }, () => [])
+      : []
+
+    if (monthViewWeekOptimization) {
+      const ranges = weeks.map((week) => ({
+        start: week[0],
+        end: week[week.length - 1],
+      }))
+
+      for (let j = 0; j < events.length; j++) {
+        const e = events[j]
+
+        const idx = ranges.findIndex((range) =>
+          inRange(e, range.start, range.end, accessors, localizer)
+        )
+
+        if (idx >= 0) allWeeksEvents[idx].push(e)
+      }
+    }
+
     return (
       <div
         className={clsx('rbc-month-view', className)}
@@ -92,13 +128,13 @@ class MonthView extends React.Component {
         <div className="rbc-row rbc-month-header" role="row">
           {this.renderHeaders(weeks[0])}
         </div>
-        {weeks.map(this.renderWeek)}
+        {weeks.map((w, i) => this.renderWeek(w, i, allWeeksEvents[i]))}
         {this.props.popup && this.renderOverlay()}
       </div>
     )
   }
 
-  renderWeek = (week, weekIdx) => {
+  renderWeek = (week, weekIdx, currentWeekEvents) => {
     let {
       events,
       components,
@@ -111,20 +147,35 @@ class MonthView extends React.Component {
       accessors,
       getters,
       showAllEvents,
+      monthViewNoSortEvents,
     } = this.props
 
     const { needLimitMeasure, rowLimit } = this.state
 
     // let's not mutate props
-    const weeksEvents = eventsForWeek(
-      [...events],
-      week[0],
-      week[week.length - 1],
-      accessors,
-      localizer
-    )
+    // const weeksEvents = eventsForWeek(
+    //   [...events],
+    //   week[0],
+    //   week[week.length - 1],
+    //   accessors,
+    //   localizer
+    // )
 
-    const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
+    // PERF: This is related to the monthViewWeekOptimization in render().
+    const weeksEvents =
+      currentWeekEvents ||
+      eventsForWeek(
+        [...events],
+        week[0],
+        week[week.length - 1],
+        accessors,
+        localizer
+      )
+
+    // PERF: Events are already sorted, don't need to do it again.
+    const sorted = monthViewNoSortEvents
+      ? weeksEvents
+      : sortWeekEvents(weeksEvents, accessors, localizer)
 
     return (
       <DateContentRow
