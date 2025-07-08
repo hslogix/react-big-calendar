@@ -108,8 +108,11 @@ class MonthView extends React.Component {
       : null
 
     if (monthViewWeekOptimization) {
+      // PERF: We assume that events are already sorted, we don't need to loop
+      //       from weeks[0] again if the previous event has passed that.
+      let weekIndex = 0
       events.forEach((e) => {
-        for (let i = 0; i < this._weekCount; i++) {
+        for (let i = weekIndex; i < this._weekCount; i++) {
           const week = weeks[i]
           const weekStart = week[0]
           const weekEnd = week[week.length - 1]

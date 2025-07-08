@@ -48118,8 +48118,11 @@
                 )
               : null
             if (monthViewWeekOptimization) {
+              // PERF: We assume that events are already sorted, we don't need to loop
+              //       from weeks[0] again if the previous event has passed that.
+              var weekIndex = 0
               events.forEach(function (e) {
-                for (var i = 0; i < _this3._weekCount; i++) {
+                for (var i = weekIndex; i < _this3._weekCount; i++) {
                   var week = weeks[i]
                   var weekStart = week[0]
                   var weekEnd = week[week.length - 1]
