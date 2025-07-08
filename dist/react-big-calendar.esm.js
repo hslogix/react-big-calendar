@@ -12,6 +12,7 @@ import React, {
   useLayoutEffect,
   useRef,
   createRef,
+  PureComponent,
   Component,
   useMemo,
   useState,
@@ -2632,7 +2633,7 @@ var eventsForWeek = function eventsForWeek(
     return inRange(e, start, end, accessors, localizer)
   })
 }
-var MonthView = /*#__PURE__*/ (function (_React$Component) {
+var MonthView = /*#__PURE__*/ (function (_PureComponent) {
   function MonthView() {
     var _this
     _classCallCheck(this, MonthView)
@@ -2842,7 +2843,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     console.info('MonthView constructor', _this.props, _this.state)
     return _this
   }
-  _inherits(MonthView, _React$Component)
+  _inherits(MonthView, _PureComponent)
   return _createClass(
     MonthView,
     [
@@ -3120,7 +3121,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       },
     ]
   )
-})(React.Component)
+})(PureComponent)
 MonthView.range = function (date, _ref3) {
   var localizer = _ref3.localizer
   var start = localizer.firstVisibleDay(date, localizer)

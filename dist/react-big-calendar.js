@@ -47837,7 +47837,7 @@
       return inRange(e, start, end, accessors, localizer)
     })
   }
-  var MonthView = /*#__PURE__*/ (function (_React$Component) {
+  var MonthView = /*#__PURE__*/ (function (_PureComponent) {
     function MonthView() {
       var _this
       _classCallCheck(this, MonthView)
@@ -48048,7 +48048,7 @@
       console.info('MonthView constructor', _this.props, _this.state)
       return _this
     }
-    _inherits(MonthView, _React$Component)
+    _inherits(MonthView, _PureComponent)
     return _createClass(
       MonthView,
       [
@@ -48332,7 +48332,7 @@
         },
       ]
     )
-  })(React.Component)
+  })(reactExports.PureComponent)
   MonthView.range = function (date, _ref3) {
     var localizer = _ref3.localizer
     var start = localizer.firstVisibleDay(date, localizer)

@@ -1,4 +1,4 @@
-import React, { createRef } from 'react'
+import React, { createRef, PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
@@ -21,7 +21,7 @@ import { inRange, sortWeekEvents } from './utils/eventLevels'
 let eventsForWeek = (evts, start, end, accessors, localizer) =>
   evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
-class MonthView extends React.Component {
+class MonthView extends PureComponent {
   constructor(...args) {
     super(...args)
 
