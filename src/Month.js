@@ -18,8 +18,8 @@ import DateHeader from './DateHeader'
 
 import { inRange, sortWeekEvents } from './utils/eventLevels'
 
-let eventsForWeek = (evts, start, end, accessors, localizer) =>
-  evts.filter((e) => inRange(e, start, end, accessors, localizer))
+// let eventsForWeek = (evts, start, end, accessors, localizer) =>
+//   evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
 class MonthView extends React.Component {
   constructor(...args) {
@@ -105,14 +105,11 @@ class MonthView extends React.Component {
     const { events, accessors, monthViewWeekOptimization } = this.props
     let allWeeksEvents = monthViewWeekOptimization
       ? Array.from({ length: this._weekCount }, () => [])
-      : null
+      : []
 
     if (monthViewWeekOptimization) {
-      // PERF: We assume that events are already sorted, we don't need to loop
-      //       from weeks[0] again if the previous event has passed that.
-      let weekIndex = 0
       events.forEach((e) => {
-        for (let i = weekIndex; i < this._weekCount; i++) {
+        for (let i = 0; i < weeks.length; i++) {
           const week = weeks[i]
           const weekStart = week[0]
           const weekEnd = week[week.length - 1]
@@ -143,9 +140,9 @@ class MonthView extends React.Component {
     )
   }
 
-  renderWeek = (week, weekIdx, currentWeekEvents) => {
+  renderWeek = (week, weekIdx, weeksEvents) => {
     let {
-      events,
+      // events,
       components,
       selectable,
       getNow,
@@ -169,15 +166,14 @@ class MonthView extends React.Component {
     //   accessors,
     //   localizer
     // )
-    const weeksEvents =
-      currentWeekEvents ||
-      eventsForWeek(
-        [...events],
-        week[0],
-        week[week.length - 1],
-        accessors,
-        localizer
-      )
+    // const weeksEvents = currentWeekEvents ||
+    //                       eventsForWeek(
+    //                         [...events],
+    //                         week[0],
+    //                         week[week.length - 1],
+    //                         accessors,
+    //                         localizer
+    //                       )
 
     const sorted = monthViewNoSortEvents
       ? weeksEvents
