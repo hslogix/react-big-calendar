@@ -48109,17 +48109,39 @@
                 )
               : []
             if (monthViewWeekOptimization) {
-              events.forEach(function (e) {
-                for (var i = 0; i < weeks.length; i++) {
-                  var week = weeks[i]
-                  var weekStart = week[0]
-                  var weekEnd = week[week.length - 1]
-                  if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-                    allWeeksEvents[i].push(e)
-                    break
-                  }
+              var ranges = weeks.map(function (week) {
+                return {
+                  start: week[0],
+                  end: week[week.length - 1],
                 }
               })
+              var _loop = function _loop() {
+                var e = events[j]
+                var idx = ranges.findIndex(function (range) {
+                  return inRange(
+                    e,
+                    range.start,
+                    range.end,
+                    accessors,
+                    localizer
+                  )
+                })
+                if (idx >= 0) allWeeksEvents[idx].push(e)
+
+                // for (let i = 0; i < weeks.length; i++) {
+                //   const week = weeks[i]
+                //   const weekStart = week[0]
+                //   const weekEnd = week[week.length - 1]
+
+                //   if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+                //     allWeeksEvents[i].push(e)
+                //     break
+                //   }
+                // }
+              }
+              for (var j = 0; j < events.length; j++) {
+                _loop()
+              }
             }
 
             // console.info('render allWeeksEvents', allWeeksEvents)

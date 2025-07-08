@@ -108,18 +108,31 @@ class MonthView extends React.Component {
       : []
 
     if (monthViewWeekOptimization) {
-      events.forEach((e) => {
-        for (let i = 0; i < weeks.length; i++) {
-          const week = weeks[i]
-          const weekStart = week[0]
-          const weekEnd = week[week.length - 1]
+      const ranges = weeks.map((week) => ({
+        start: week[0],
+        end: week[week.length - 1],
+      }))
 
-          if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-            allWeeksEvents[i].push(e)
-            break
-          }
-        }
-      })
+      for (let j = 0; j < events.length; j++) {
+        const e = events[j]
+
+        const idx = ranges.findIndex((range) =>
+          inRange(e, range.start, range.end, accessors, localizer)
+        )
+
+        if (idx >= 0) allWeeksEvents[idx].push(e)
+
+        // for (let i = 0; i < weeks.length; i++) {
+        //   const week = weeks[i]
+        //   const weekStart = week[0]
+        //   const weekEnd = week[week.length - 1]
+
+        //   if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
+        //     allWeeksEvents[i].push(e)
+        //     break
+        //   }
+        // }
+      }
     }
 
     // console.info('render allWeeksEvents', allWeeksEvents)
