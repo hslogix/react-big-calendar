@@ -48108,24 +48108,31 @@
               accessors = _this$props5.accessors,
               monthViewWeekOptimization = _this$props5.monthViewWeekOptimization
             var allWeeksEvents = monthViewWeekOptimization
-              ? [] // Array.from({ length: this._weekCount }, () => [])
+              ? Array.from(
+                  {
+                    length: this._weekCount,
+                  },
+                  function () {
+                    return []
+                  }
+                )
               : null
             if (monthViewWeekOptimization) {
-              for (var j = 0; j < events.length; j++) {
-                var e = events[j]
-                for (var i = 0; i < this._weekCount; i++) {
+              events.forEach(function (e) {
+                for (var i = 0; i < _this3._weekCount; i++) {
                   var week = weeks[i]
                   var weekStart = week[0]
                   var weekEnd = week[week.length - 1]
                   if (inRange(e, weekStart, weekEnd, accessors, localizer)) {
-                    allWeeksEvents[i] = allWeeksEvents[i] || []
                     allWeeksEvents[i].push(e)
                     break
                   }
                 }
-              }
+              })
             }
-            console.info('render allWeeksEvents', allWeeksEvents)
+
+            // console.info('render allWeeksEvents', allWeeksEvents)
+
             return /*#__PURE__*/ React.createElement(
               'div',
               {
