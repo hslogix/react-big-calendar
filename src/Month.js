@@ -30,6 +30,10 @@ class MonthView extends React.Component {
     //   needLimitMeasure: true,
     //   date: null,
     // }
+
+    // PERF: By injecting rowLimit and set needLimitMeasure to false,
+    //       we can avoid the double rendering every time the MonthView is
+    //       updated.
     const { monthViewRowLimit } = this.props
 
     this.state = {
@@ -43,17 +47,9 @@ class MonthView extends React.Component {
 
     this._bgRows = []
     this._pendingSelection = []
-    console.info('MonthView constructor', this.props, this.state)
   }
 
   static getDerivedStateFromProps({ date, localizer }, state) {
-    console.info(
-      'MonthView getDerivedStateFromProps',
-      date,
-      state,
-      localizer.neq(date, state.date, 'month')
-    )
-
     return {
       date,
       needLimitMeasure: localizer.neq(date, state.date, 'month'),
@@ -62,7 +58,7 @@ class MonthView extends React.Component {
 
   componentDidMount() {
     let running
-    console.info('MonthView componentDidMount', this.props, this.state)
+
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
 
     window.addEventListener(
@@ -80,7 +76,6 @@ class MonthView extends React.Component {
   }
 
   componentDidUpdate() {
-    console.info('MonthView componentDidUpdate', this.props, this.state)
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
   }
 
@@ -98,10 +93,9 @@ class MonthView extends React.Component {
       weeks = chunk(month, 7)
 
     this._weekCount = weeks.length
-    console.info('render', date, weeks, this.state)
 
-    // PERF: In previous implementation, we loop the events multiple times for a
-    //       month. We can try to optimize by looping only once.
+    // PERF: In previous implementation, we loop the events once for each week
+    //       in the month. We can try to optimize by looping only once.
     const { events, accessors, monthViewWeekOptimization } = this.props
     let allWeeksEvents = monthViewWeekOptimization
       ? Array.from({ length: this._weekCount }, () => [])
@@ -115,18 +109,14 @@ class MonthView extends React.Component {
 
       for (let j = 0; j < events.length; j++) {
         const e = events[j]
-        const event = { start: accessors.start(e), end: accessors.end(e) }
 
         const idx = ranges.findIndex((range) =>
-          // inRange(e, range.start, range.end, accessors, localizer)
-          localizer.inEventRange({ event, range })
+          inRange(e, range.start, range.end, accessors, localizer)
         )
 
         if (idx >= 0) allWeeksEvents[idx].push(e)
       }
     }
-
-    console.info('render allWeeksEvents', allWeeksEvents)
 
     return (
       <div
@@ -170,6 +160,8 @@ class MonthView extends React.Component {
     //   accessors,
     //   localizer
     // )
+
+    // PERF: This is related to the monthViewWeekOptimization in render().
     const weeksEvents =
       currentWeekEvents ||
       eventsForWeek(
@@ -180,10 +172,10 @@ class MonthView extends React.Component {
         localizer
       )
 
+    // PERF: Events are already sorted, don't need to do it again.
     const sorted = monthViewNoSortEvents
       ? weeksEvents
       : sortWeekEvents(weeksEvents, accessors, localizer)
-    console.info('renderWeek', weekIdx, sorted)
 
     return (
       <DateContentRow
@@ -251,7 +243,6 @@ class MonthView extends React.Component {
     let first = row[0]
     let last = row[row.length - 1]
     let HeaderComponent = components.header || Header
-    console.info('renderHeaders', first, last)
 
     return localizer.range(first, last, 'day').map((day, idx) => (
       <div key={'header_' + idx} className="rbc-header">
@@ -331,13 +322,6 @@ class MonthView extends React.Component {
   }
 
   measureRowLimit() {
-    console.info(
-      'measureRowLimit',
-      this.props,
-      this.state,
-      this.slotRowRef.current
-    )
-
     this.setState({
       needLimitMeasure: false,
       rowLimit: this.slotRowRef.current.getRowLimit(),

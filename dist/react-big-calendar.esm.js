@@ -1920,6 +1920,15 @@ var EventRow = /*#__PURE__*/ (function (_React$Component) {
     },
   ])
 })(React.Component)
+EventRow.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? _objectSpread(
+        {
+          segments: PropTypes.array,
+        },
+        EventRowMixin.propTypes
+      )
+    : {}
 EventRow.defaultProps = _objectSpread({}, EventRowMixin.defaultProps)
 
 function endOfRange(_ref) {
@@ -2601,6 +2610,12 @@ var Header = function Header(_ref) {
     label
   )
 }
+Header.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+      }
+    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -2660,6 +2675,10 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     //   needLimitMeasure: true,
     //   date: null,
     // }
+
+    // PERF: By injecting rowLimit and set needLimitMeasure to false,
+    //       we can avoid the double rendering every time the MonthView is
+    //       updated.
     _this.getContainer = function () {
       return _this.containerRef.current
     }
@@ -2689,6 +2708,8 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       //   accessors,
       //   localizer
       // )
+
+      // PERF: This is related to the monthViewWeekOptimization in render().
       var weeksEvents =
         currentWeekEvents ||
         eventsForWeek(
@@ -2698,10 +2719,11 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           accessors,
           localizer
         )
+
+      // PERF: Events are already sorted, don't need to do it again.
       var sorted = monthViewNoSortEvents
         ? weeksEvents
         : sortWeekEvents(weeksEvents, accessors, localizer)
-      console.info('renderWeek', weekIdx, sorted)
       return /*#__PURE__*/ React.createElement(DateContentRow, {
         key: weekIdx,
         ref: weekIdx === 0 ? _this.slotRowRef : undefined,
@@ -2849,7 +2871,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     _this.slotRowRef = /*#__PURE__*/ createRef()
     _this._bgRows = []
     _this._pendingSelection = []
-    console.info('MonthView constructor', _this.props, _this.state)
     return _this
   }
   _inherits(MonthView, _React$Component)
@@ -2861,7 +2882,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function componentDidMount() {
           var _this2 = this
           var running
-          console.info('MonthView componentDidMount', this.props, this.state)
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
           window.addEventListener(
             'resize',
@@ -2882,7 +2902,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'componentDidUpdate',
         value: function componentDidUpdate() {
-          console.info('MonthView componentDidUpdate', this.props, this.state)
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
         },
       },
@@ -2903,10 +2922,9 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             month = localizer.visibleDays(date, localizer),
             weeks = chunk(month, 7)
           this._weekCount = weeks.length
-          console.info('render', date, weeks, this.state)
 
-          // PERF: In previous implementation, we loop the events multiple times for a
-          //       month. We can try to optimize by looping only once.
+          // PERF: In previous implementation, we loop the events once for each week
+          //       in the month. We can try to optimize by looping only once.
           var _this$props5 = this.props,
             events = _this$props5.events,
             accessors = _this$props5.accessors,
@@ -2930,18 +2948,8 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             })
             var _loop = function _loop() {
               var e = events[j]
-              var event = {
-                start: accessors.start(e),
-                end: accessors.end(e),
-              }
               var idx = ranges.findIndex(function (range) {
-                return (
-                  // inRange(e, range.start, range.end, accessors, localizer)
-                  localizer.inEventRange({
-                    event: event,
-                    range: range,
-                  })
-                )
+                return inRange(e, range.start, range.end, accessors, localizer)
               })
               if (idx >= 0) allWeeksEvents[idx].push(e)
             }
@@ -2949,7 +2957,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
               _loop()
             }
           }
-          console.info('render allWeeksEvents', allWeeksEvents)
           return /*#__PURE__*/ React.createElement(
             'div',
             {
@@ -2982,7 +2989,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var first = row[0]
           var last = row[row.length - 1]
           var HeaderComponent = components.header || Header
-          console.info('renderHeaders', first, last)
           return localizer.range(first, last, 'day').map(function (day, idx) {
             return /*#__PURE__*/ React.createElement(
               'div',
@@ -3079,12 +3085,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       {
         key: 'measureRowLimit',
         value: function measureRowLimit() {
-          console.info(
-            'measureRowLimit',
-            this.props,
-            this.state,
-            this.slotRowRef.current
-          )
           this.setState({
             needLimitMeasure: false,
             rowLimit: this.slotRowRef.current.getRowLimit(),
@@ -3126,12 +3126,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         value: function getDerivedStateFromProps(_ref2, state) {
           var date = _ref2.date,
             localizer = _ref2.localizer
-          console.info(
-            'MonthView getDerivedStateFromProps',
-            date,
-            state,
-            localizer.neq(date, state.date, 'month')
-          )
           return {
             date: date,
             needLimitMeasure: localizer.neq(date, state.date, 'month'),
