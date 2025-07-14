@@ -55840,11 +55840,14 @@
       var last = lastVisibleDay(date)
       var days = []
       var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
+      console.info('Using timezone: '.concat(timeZone))
       while (lte(current, last)) {
+        console.info('current:', current)
         days.push(current)
         // current = add(current, 1, 'd')
         current = dayjsLib(current).add(1, 'd').tz(timeZone, true).toDate()
       }
+      console.info('visibleDays:', days)
       return days
     }
     /*** END localized date arithmetic methods with dayjs ***/
