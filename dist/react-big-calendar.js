@@ -48074,7 +48074,6 @@
               className = _this$props4.className,
               month = localizer.visibleDays(date, localizer),
               weeks = chunk_1(month, 7)
-            console.info('visibleDays', month, weeks, date, localizer)
             this._weekCount = weeks.length
             return /*#__PURE__*/ React.createElement(
               'div',
@@ -55781,10 +55780,7 @@
     }
     function add(date, adder, unit) {
       var datePart = fixUnit(unit)
-      var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
-
-      // return dayjs(date).add(adder, datePart).toDate()
-      return dayjsLib(date).add(adder, datePart).tz(timeZone, true).toDate()
+      return dayjs(date).add(adder, datePart).toDate()
     }
     function range(start, end) {
       var unit =
@@ -55843,9 +55839,11 @@
       var current = firstVisibleDay(date)
       var last = lastVisibleDay(date)
       var days = []
+      var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
       while (lte(current, last)) {
         days.push(current)
-        current = add(current, 1, 'd')
+        // current = add(current, 1, 'd')
+        current = dayjsLib(current).add(1, 'd').tz(timeZone, true).toDate()
       }
       return days
     }
