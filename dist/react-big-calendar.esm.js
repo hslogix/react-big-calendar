@@ -7987,8 +7987,9 @@ function dayjs(dayjsLib) {
       adder,
       datePart,
       val,
-      dayjsLib(val).utc(true).toDate(),
-      dayjsLib(val).toDate()
+      dayjs(date).tz(),
+      dayjs(date).$x.$timezone,
+      dayjsLib(date).add(adder, datePart).tz(dayjs(date).tz(), true).toDate()
     )
     return dayjs(date).add(adder, datePart).toDate()
   }
