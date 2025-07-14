@@ -259,8 +259,10 @@ export default function (dayjsLib) {
     let current = firstVisibleDay(date)
     const last = lastVisibleDay(date)
     const days = []
+    console.info('visibleDays', current, last)
 
     while (lte(current, last)) {
+      console.info('current day', current)
       days.push(current)
       current = add(current, 1, 'd')
     }

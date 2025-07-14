@@ -79,6 +79,7 @@ class MonthView extends React.Component {
     let { date, localizer, className } = this.props,
       month = localizer.visibleDays(date, localizer),
       weeks = chunk(month, 7)
+    console.info('visibleDays', month, weeks, date, localizer)
 
     this._weekCount = weeks.length
 
