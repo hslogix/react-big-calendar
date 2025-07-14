@@ -7980,6 +7980,16 @@ function dayjs(dayjsLib) {
   }
   function add(date, adder, unit) {
     var datePart = fixUnit(unit)
+    var val = dayjs(date).add(adder, datePart).toDate()
+    console.info(
+      'add',
+      date,
+      adder,
+      datePart,
+      val,
+      dayjsLib(val).utc(true).toDate(),
+      dayjsLib(val).toDate()
+    )
     return dayjs(date).add(adder, datePart).toDate()
   }
   function range(start, end) {

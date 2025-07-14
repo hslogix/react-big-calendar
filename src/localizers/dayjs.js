@@ -197,6 +197,16 @@ export default function (dayjsLib) {
 
   function add(date, adder, unit) {
     const datePart = fixUnit(unit)
+    const val = dayjs(date).add(adder, datePart).toDate()
+    console.info(
+      'add',
+      date,
+      adder,
+      datePart,
+      val,
+      dayjsLib(val).utc(true).toDate(),
+      dayjsLib(val).toDate()
+    )
     return dayjs(date).add(adder, datePart).toDate()
   }
 
