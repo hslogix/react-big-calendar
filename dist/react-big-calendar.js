@@ -55781,20 +55781,10 @@
     }
     function add(date, adder, unit) {
       var datePart = fixUnit(unit)
-      var val = dayjs(date).add(adder, datePart).toDate()
-      console.info(
-        'add',
-        date,
-        adder,
-        datePart,
-        val,
-        dayjs(date).$x.$timezone,
-        dayjsLib(date)
-          .add(adder, datePart)
-          .tz(dayjs(date).$x.$timezone, true)
-          .toDate()
-      )
-      return dayjs(date).add(adder, datePart).toDate()
+      var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
+
+      // return dayjs(date).add(adder, datePart).toDate()
+      return dayjsLib(date).add(adder, datePart).tz(timeZone, true).toDate()
     }
     function range(start, end) {
       var unit =
@@ -55853,9 +55843,7 @@
       var current = firstVisibleDay(date)
       var last = lastVisibleDay(date)
       var days = []
-      console.info('visibleDays', current, last)
       while (lte(current, last)) {
-        console.info('current day', current)
         days.push(current)
         current = add(current, 1, 'd')
       }
