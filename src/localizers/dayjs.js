@@ -77,6 +77,7 @@ export default function (dayjsLib) {
 
   // if the timezone plugin is loaded,
   // then use the timezone aware version
+  console.info('dayjs timezone plugin:', dayjsLib.tz ? 'loaded' : 'not loaded')
   const dayjs = dayjsLib.tz ? dayjsLib.tz : dayjsLib
 
   function getTimezoneOffset(date) {
@@ -261,7 +262,7 @@ export default function (dayjsLib) {
     const last = lastVisibleDay(date)
     const days = []
     const timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
-    console.info(`Using timezone: ${timeZone}`)
+    console.info(`Using timezone: ${timeZone}`, date, dayjs(date))
 
     while (lte(current, last)) {
       console.info('current:', current)

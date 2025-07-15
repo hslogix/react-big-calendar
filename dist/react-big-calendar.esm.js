@@ -4285,6 +4285,14 @@ var ResourceHeader = function ResourceHeader(_ref) {
   var label = _ref.label
   return /*#__PURE__*/ React.createElement(React.Fragment, null, label)
 }
+ResourceHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        index: PropTypes.number,
+        resource: PropTypes.object,
+      }
+    : {}
 
 var TimeGridHeader = /*#__PURE__*/ (function (_React$Component) {
   function TimeGridHeader() {
@@ -7842,6 +7850,7 @@ function dayjs(dayjsLib) {
 
   // if the timezone plugin is loaded,
   // then use the timezone aware version
+  console.info('dayjs timezone plugin:', dayjsLib.tz ? 'loaded' : 'not loaded')
   var dayjs = dayjsLib.tz ? dayjsLib.tz : dayjsLib
   function getTimezoneOffset(date) {
     // ensures this gets cast to timezone
@@ -8035,7 +8044,7 @@ function dayjs(dayjsLib) {
     var last = lastVisibleDay(date)
     var days = []
     var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
-    console.info('Using timezone: '.concat(timeZone))
+    console.info('Using timezone: '.concat(timeZone), date, dayjs(date))
     while (lte(current, last)) {
       console.info('current:', current)
       days.push(current)
