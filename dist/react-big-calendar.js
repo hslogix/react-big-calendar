@@ -55641,10 +55641,6 @@
 
     // if the timezone plugin is loaded,
     // then use the timezone aware version
-    console.info(
-      'dayjs timezone plugin:',
-      dayjsLib.tz ? 'loaded' : 'not loaded'
-    )
     var dayjs = dayjsLib.tz ? dayjsLib.tz : dayjsLib
     function getTimezoneOffset(date) {
       // ensures this gets cast to timezone
@@ -55849,7 +55845,11 @@
         console.info('current:', current)
         days.push(current)
         // current = add(current, 1, 'd')
-        current = dayjsLib(current).add(1, 'd').tz(timeZone, true).toDate()
+        var clone = dayjs(current)
+        current = clone
+          .date(clone.date() + 1)
+          .tz(timeZone, true)
+          .toDate()
       }
       console.info('visibleDays:', days)
       return days
