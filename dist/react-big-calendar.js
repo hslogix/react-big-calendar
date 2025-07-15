@@ -47806,12 +47806,6 @@
       label
     )
   }
-  Header.propTypes =
-    'development' !== 'production'
-      ? {
-          label: propTypesExports.node,
-        }
-      : {}
 
   var DateHeader = function DateHeader(_ref) {
     var label = _ref.label,
@@ -55846,9 +55840,7 @@
       var last = lastVisibleDay(date)
       var days = []
       var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
-      console.info('Using timezone: '.concat(timeZone), date, dayjs(date))
       while (lte(current, last)) {
-        console.info('current:', current)
         days.push(current)
         // current = add(current, 1, 'd')
         var clone = dayjs(current)
@@ -55857,7 +55849,6 @@
           .tz(timeZone, true)
           .toDate()
       }
-      console.info('visibleDays:', days)
       return days
     }
     /*** END localized date arithmetic methods with dayjs ***/
