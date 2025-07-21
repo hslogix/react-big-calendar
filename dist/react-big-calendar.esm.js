@@ -2625,16 +2625,6 @@ var DateHeader = function DateHeader(_ref) {
     label
   )
 }
-DateHeader.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-        date: PropTypes.instanceOf(Date),
-        drilldownView: PropTypes.string,
-        onDrillDown: PropTypes.func,
-        isOffRange: PropTypes.bool,
-      }
-    : {}
 
 var _excluded$6 = ['date', 'className']
 var eventsForWeek = function eventsForWeek(
@@ -3641,6 +3631,16 @@ var TimeSlotGroup = /*#__PURE__*/ (function (_Component) {
     },
   ])
 })(Component)
+TimeSlotGroup.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        renderSlot: PropTypes.func,
+        group: PropTypes.array.isRequired,
+        resource: PropTypes.any,
+        components: PropTypes.object,
+        getters: PropTypes.object,
+      }
+    : {}
 
 function stringifyPercent(v) {
   return typeof v === 'string' ? v : v + '%'
@@ -5699,6 +5699,13 @@ Week.range = function (date, _ref2) {
   var firstOfWeek = localizer.startOfWeek()
   var start = localizer.startOf(date, 'week', firstOfWeek)
   var end = localizer.endOf(date, 'week', firstOfWeek)
+  console.info(
+    'Week.range',
+    start,
+    end,
+    firstOfWeek,
+    localizer.range(start, end)
+  )
   return localizer.range(start, end)
 }
 Week.title = function (date, _ref3) {
@@ -8004,10 +8011,13 @@ function dayjs(dayjsLib) {
     // because the add method will put these in tz, we have to start that way
     var current = dayjs(start).toDate()
     var days = []
+    console.info('range', start, end, datePart)
     while (lte(current, end)) {
+      console.info('current:', current)
       days.push(current)
       current = add(current, 1, datePart)
     }
+    console.info('days:', days)
     return days
   }
   function ceil(date, unit) {

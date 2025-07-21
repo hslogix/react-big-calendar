@@ -120,6 +120,13 @@ Week.range = (date, { localizer }) => {
   let start = localizer.startOf(date, 'week', firstOfWeek)
   let end = localizer.endOf(date, 'week', firstOfWeek)
 
+  console.info(
+    'Week.range',
+    start,
+    end,
+    firstOfWeek,
+    localizer.range(start, end)
+  )
   return localizer.range(start, end)
 }
 

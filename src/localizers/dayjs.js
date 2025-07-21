@@ -206,12 +206,14 @@ export default function (dayjsLib) {
     // because the add method will put these in tz, we have to start that way
     let current = dayjs(start).toDate()
     const days = []
+    console.info('range', start, end, datePart)
 
     while (lte(current, end)) {
+      console.info('current:', current)
       days.push(current)
       current = add(current, 1, datePart)
     }
-
+    console.info('days:', days)
     return days
   }
 
