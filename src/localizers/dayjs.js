@@ -206,13 +206,21 @@ export default function (dayjsLib) {
     // because the add method will put these in tz, we have to start that way
     let current = dayjs(start).toDate()
     const days = []
+    const timeZone = dayjs(start).$x.$timezone || dayjsLib.tz.guess()
     console.info('range', start, end, datePart)
 
     while (lte(current, end)) {
       console.info('current:', current)
       days.push(current)
-      current = add(current, 1, datePart)
+      if (unit === 'day') {
+        const clone = dayjs(current)
+        current = clone
+          .date(clone.date() + 1)
+          .tz(timeZone, true)
+          .toDate()
+      } else current = add(current, 1, datePart)
     }
+
     console.info('days:', days)
     return days
   }
@@ -263,10 +271,8 @@ export default function (dayjsLib) {
     const last = lastVisibleDay(date)
     const days = []
     const timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
-    console.info('visibleDays', last, timeZone)
 
     while (lte(current, last)) {
-      console.info('current:', current)
       days.push(current)
       // current = add(current, 1, 'd')
       const clone = dayjs(current)
@@ -275,7 +281,6 @@ export default function (dayjsLib) {
         .tz(timeZone, true)
         .toDate()
     }
-    console.info('days:', days)
 
     return days
   }

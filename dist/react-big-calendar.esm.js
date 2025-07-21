@@ -2601,12 +2601,6 @@ var Header = function Header(_ref) {
     label
   )
 }
-Header.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        label: PropTypes.node,
-      }
-    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -3631,16 +3625,6 @@ var TimeSlotGroup = /*#__PURE__*/ (function (_Component) {
     },
   ])
 })(Component)
-TimeSlotGroup.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        renderSlot: PropTypes.func,
-        group: PropTypes.array.isRequired,
-        resource: PropTypes.any,
-        components: PropTypes.object,
-        getters: PropTypes.object,
-      }
-    : {}
 
 function stringifyPercent(v) {
   return typeof v === 'string' ? v : v + '%'
@@ -5699,13 +5683,6 @@ Week.range = function (date, _ref2) {
   var firstOfWeek = localizer.startOfWeek()
   var start = localizer.startOf(date, 'week', firstOfWeek)
   var end = localizer.endOf(date, 'week', firstOfWeek)
-  console.info(
-    'Week.range',
-    start,
-    end,
-    firstOfWeek,
-    localizer.range(start, end)
-  )
   return localizer.range(start, end)
 }
 Week.title = function (date, _ref3) {
@@ -8011,11 +7988,18 @@ function dayjs(dayjsLib) {
     // because the add method will put these in tz, we have to start that way
     var current = dayjs(start).toDate()
     var days = []
+    var timeZone = dayjs(start).$x.$timezone || dayjsLib.tz.guess()
     console.info('range', start, end, datePart)
     while (lte(current, end)) {
       console.info('current:', current)
       days.push(current)
-      current = add(current, 1, datePart)
+      if (unit === 'day') {
+        var clone = dayjs(current)
+        current = clone
+          .date(clone.date() + 1)
+          .tz(timeZone, true)
+          .toDate()
+      } else current = add(current, 1, datePart)
     }
     console.info('days:', days)
     return days
@@ -8061,9 +8045,7 @@ function dayjs(dayjsLib) {
     var last = lastVisibleDay(date)
     var days = []
     var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
-    console.info('visibleDays', last, timeZone)
     while (lte(current, last)) {
-      console.info('current:', current)
       days.push(current)
       // current = add(current, 1, 'd')
       var clone = dayjs(current)
@@ -8072,7 +8054,6 @@ function dayjs(dayjsLib) {
         .tz(timeZone, true)
         .toDate()
     }
-    console.info('days:', days)
     return days
   }
   /*** END localized date arithmetic methods with dayjs ***/
