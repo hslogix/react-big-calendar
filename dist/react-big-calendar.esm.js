@@ -5683,7 +5683,6 @@ Week.range = function (date, _ref2) {
   var firstOfWeek = localizer.startOfWeek()
   var start = localizer.startOf(date, 'week', firstOfWeek)
   var end = localizer.endOf(date, 'week', firstOfWeek)
-  console.info('Week.range', firstOfWeek, start, end)
   return localizer.range(start, end)
 }
 Week.title = function (date, _ref3) {
@@ -7990,9 +7989,7 @@ function dayjs(dayjsLib) {
     var current = dayjs(start).toDate()
     var days = []
     var timeZone = dayjs(start).$x.$timezone || dayjsLib.tz.guess()
-    console.info('range', start, end, datePart)
     while (lte(current, end)) {
-      console.info('current:', current)
       days.push(current)
       if (unit === 'day') {
         var clone = dayjs(current)
@@ -8002,7 +7999,6 @@ function dayjs(dayjsLib) {
           .toDate()
       } else current = add(current, 1, datePart)
     }
-    console.info('days:', days)
     return days
   }
   function ceil(date, unit) {

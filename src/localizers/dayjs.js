@@ -207,10 +207,8 @@ export default function (dayjsLib) {
     let current = dayjs(start).toDate()
     const days = []
     const timeZone = dayjs(start).$x.$timezone || dayjsLib.tz.guess()
-    console.info('range', start, end, datePart)
 
     while (lte(current, end)) {
-      console.info('current:', current)
       days.push(current)
       if (unit === 'day') {
         const clone = dayjs(current)
@@ -221,7 +219,6 @@ export default function (dayjsLib) {
       } else current = add(current, 1, datePart)
     }
 
-    console.info('days:', days)
     return days
   }
 
