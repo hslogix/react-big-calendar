@@ -2601,6 +2601,12 @@ var Header = function Header(_ref) {
     label
   )
 }
+Header.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+      }
+    : {}
 
 var DateHeader = function DateHeader(_ref) {
   var label = _ref.label,
@@ -2619,6 +2625,16 @@ var DateHeader = function DateHeader(_ref) {
     label
   )
 }
+DateHeader.propTypes =
+  process.env.NODE_ENV !== 'production'
+    ? {
+        label: PropTypes.node,
+        date: PropTypes.instanceOf(Date),
+        drilldownView: PropTypes.string,
+        onDrillDown: PropTypes.func,
+        isOffRange: PropTypes.bool,
+      }
+    : {}
 
 var _excluded$6 = ['date', 'className']
 var eventsForWeek = function eventsForWeek(
@@ -8035,7 +8051,9 @@ function dayjs(dayjsLib) {
     var last = lastVisibleDay(date)
     var days = []
     var timeZone = dayjs(date).$x.$timezone || dayjsLib.tz.guess()
+    console.info('visibleDays', last, timeZone)
     while (lte(current, last)) {
+      console.info('current:', current)
       days.push(current)
       // current = add(current, 1, 'd')
       var clone = dayjs(current)
@@ -8044,6 +8062,7 @@ function dayjs(dayjsLib) {
         .tz(timeZone, true)
         .toDate()
     }
+    console.info('days:', days)
     return days
   }
   /*** END localized date arithmetic methods with dayjs ***/
