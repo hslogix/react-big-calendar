@@ -50053,6 +50053,10 @@
           }
           var DayColumnWrapperComponent =
             components.dayColumnWrapper || DayColumnWrapper$1
+          console.info('DayColumn render', {
+            date: date,
+            slotMetrics: slotMetrics,
+          })
           return /*#__PURE__*/ React.createElement(
             DayColumnWrapperComponent,
             {

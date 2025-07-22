@@ -136,6 +136,10 @@ class DayColumn extends React.Component {
     const DayColumnWrapperComponent =
       components.dayColumnWrapper || DayColumnWrapper
 
+    console.info('DayColumn render', {
+      date,
+      slotMetrics,
+    })
     return (
       <DayColumnWrapperComponent
         ref={this.containerRef}
