@@ -1,3 +1,5 @@
+import { max, min } from 'lodash'
+
 const getKey = ({ min, max, step, slots, localizer }) =>
   `${+localizer.startOf(min, 'minutes')}` +
   `${+localizer.startOf(max, 'minutes')}` +
@@ -17,6 +19,17 @@ export function getSlotMetrics({
   const minutesFromMidnight = localizer.getMinutesFromMidnight(start)
   const numGroups = Math.ceil((totalMin - 1) / (step * timeslots))
   const numSlots = numGroups * timeslots
+
+  console.info('getSlotMetrics', {
+    totalMin,
+    minutesFromMidnight,
+    numGroups,
+    numSlots,
+    min,
+    max,
+  })
+  const b = min + max
+  console.info('b', b)
 
   const groups = new Array(numGroups)
   const slots = new Array(numSlots)

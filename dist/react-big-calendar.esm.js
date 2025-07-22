@@ -53,6 +53,7 @@ import findIndex from 'lodash/findIndex'
 import range$1 from 'lodash/range'
 import memoize from 'memoize-one'
 import getWidth from 'dom-helpers/width'
+import { min as min$1, max as max$1 } from 'lodash'
 import sortBy from 'lodash/sortBy'
 import scrollbarSize from 'dom-helpers/scrollbarSize'
 import _toArray from '@babel/runtime/helpers/esm/toArray'
@@ -3101,6 +3102,16 @@ function getSlotMetrics(_ref2) {
   var minutesFromMidnight = localizer.getMinutesFromMidnight(start)
   var numGroups = Math.ceil((totalMin - 1) / (step * timeslots))
   var numSlots = numGroups * timeslots
+  console.info('getSlotMetrics', {
+    totalMin: totalMin,
+    minutesFromMidnight: minutesFromMidnight,
+    numGroups: numGroups,
+    numSlots: numSlots,
+    min: min$1,
+    max: max$1,
+  })
+  var b = min$1 + max$1
+  console.info('b', b)
   var groups = new Array(numGroups)
   var slots = new Array(numSlots)
   // Each slot date is created from "zero", instead of adding `step` to
