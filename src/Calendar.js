@@ -23,7 +23,43 @@ import defaults from 'lodash/defaults'
 import mapValues from 'lodash/mapValues'
 import omit from 'lodash/omit'
 import transform from 'lodash/transform'
+import memoize from 'memoize-one'
 import { wrapAccessor } from './utils/accessors'
+
+// Props that feed `Calendar.getContext`. Kept as an explicit allow-list so
+// the memoized context (accessors/getters/components/localizer) is only
+// rebuilt when one of these actually changes, instead of on every render -
+// `getContext` previously ran unconditionally from `getDerivedStateFromProps`
+// and handed every view a brand new `localizer`/`accessors` object on every
+// render, which defeated reference-equality memoization further down the
+// tree (e.g. Month's per-week event layout).
+const CONTEXT_PROP_KEYS = [
+  'startAccessor',
+  'endAccessor',
+  'allDayAccessor',
+  'tooltipAccessor',
+  'titleAccessor',
+  'resourceAccessor',
+  'resourceIdAccessor',
+  'resourceTitleAccessor',
+  'eventIdAccessor',
+  'eventPropGetter',
+  'backgroundEventPropGetter',
+  'slotPropGetter',
+  'slotGroupPropGetter',
+  'dayPropGetter',
+  'view',
+  'views',
+  'localizer',
+  'culture',
+  'messages',
+  'components',
+  'formats',
+]
+
+function contextPropsAreEqual([nextProps], [prevProps]) {
+  return CONTEXT_PROP_KEYS.every((key) => nextProps[key] === prevProps[key])
+}
 
 function viewNames(_views) {
   if (Array.isArray(_views)) {
@@ -921,12 +957,11 @@ class Calendar extends React.Component {
   constructor(...args) {
     super(...args)
 
-    this.state = {
-      context: Calendar.getContext(this.props),
-    }
-  }
-  static getDerivedStateFromProps(nextProps) {
-    return { context: Calendar.getContext(nextProps) }
+    // Memoized per-instance so unrelated re-renders (e.g. opening the
+    // "show more" popup, a resize measurement) reuse the same
+    // accessors/getters/components/localizer objects instead of handing
+    // every view fresh references on every render.
+    this.getContext = memoize(Calendar.getContext, contextPropsAreEqual)
   }
 
   static getContext({
@@ -1054,7 +1089,7 @@ class Calendar extends React.Component {
 
     let View = this.getView()
     const { accessors, components, getters, localizer, viewNames } =
-      this.state.context
+      this.getContext(this.props)
 
     let CalToolbar = components.toolbar || Toolbar
     const label = View.title(current, { localizer, length })

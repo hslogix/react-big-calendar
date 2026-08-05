@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import chunk from 'lodash/chunk'
+import memoize from 'memoize-one'
 
 import { navigate, views } from './utils/constants'
 import { notify } from './utils/helpers'
@@ -21,6 +22,13 @@ import { inRange, sortWeekEvents } from './utils/eventLevels'
 let eventsForWeek = (evts, start, end, accessors, localizer) =>
   evts.filter((e) => inRange(e, start, end, accessors, localizer))
 
+// `date` and `localizer` don't change identity on every render (`localizer`
+// is now stable from Calendar, `date` is stable while uncontrolled/unchanged),
+// but we still guard on the month itself rather than raw reference equality
+// so a freshly-constructed but equivalent `date` doesn't bust the cache.
+const weeksAreEqual = ([date, localizer], [prevDate, prevLocalizer]) =>
+  localizer === prevLocalizer && !localizer.neq(date, prevDate, 'month')
+
 class MonthView extends React.Component {
   constructor(...args) {
     super(...args)
@@ -35,6 +43,35 @@ class MonthView extends React.Component {
 
     this._bgRows = []
     this._pendingSelection = []
+
+    // Split the month grid into weeks only when the visible month actually
+    // changes, instead of on every render, so downstream per-week
+    // memoization (below, and DateSlotMetrics in DateContentRow) can rely on
+    // stable `range`/`events` array references across unrelated re-renders
+    // (e.g. opening the "show more" popup, a resize measurement).
+    this.getWeeks = memoize(
+      (date, localizer) => chunk(localizer.visibleDays(date, localizer), 7),
+      weeksAreEqual
+    )
+
+    // One memoized filter+sort per week row, keyed by week index, since a
+    // single shared memoize-one cache would be invalidated by every other
+    // week's call on the same render pass.
+    this._weekEventsMemo = []
+  }
+
+  getWeekEventsMemo(weekIdx) {
+    return (
+      this._weekEventsMemo[weekIdx] ||
+      (this._weekEventsMemo[weekIdx] = memoize(
+        (events, start, end, accessors, localizer) =>
+          sortWeekEvents(
+            eventsForWeek(events, start, end, accessors, localizer),
+            accessors,
+            localizer
+          )
+      ))
+    )
   }
 
   static getDerivedStateFromProps({ date, localizer }, state) {
@@ -77,8 +114,7 @@ class MonthView extends React.Component {
 
   render() {
     let { date, localizer, className } = this.props,
-      month = localizer.visibleDays(date, localizer),
-      weeks = chunk(month, 7)
+      weeks = this.getWeeks(date, localizer)
 
     this._weekCount = weeks.length
 
@@ -115,16 +151,13 @@ class MonthView extends React.Component {
 
     const { needLimitMeasure, rowLimit } = this.state
 
-    // let's not mutate props
-    const weeksEvents = eventsForWeek(
-      [...events],
+    const sorted = this.getWeekEventsMemo(weekIdx)(
+      events,
       week[0],
       week[week.length - 1],
       accessors,
       localizer
     )
-
-    const sorted = sortWeekEvents(weeksEvents, accessors, localizer)
 
     return (
       <DateContentRow
