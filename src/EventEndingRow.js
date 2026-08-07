@@ -27,14 +27,12 @@ class EventEndingRow extends React.Component {
 
       // Find segment that starts at or spans through current slot
       let { event, left, right, span } =
-        rowSegments.filter((seg) => isSegmentInSlot(seg, current))[0] || {}
+        rowSegments.filter((seg) => isSegmentInSlot(seg, current))[0] || {} 
 
       if (!event) {
-        // No visible event starts at this slot (`rowSegments` has nothing
-        // covering `current`, which is exactly why we're in this branch),
-        // so every event covering this slot is hidden - no need to
-        // recompute levels and diff against an always-empty visible set.
-        const hiddenEvents = eventsInSlot(segments, current)
+        // No visible event starts at this slot, but check if we need a "more" button
+        // for hidden events that span this slot
+        const hiddenEvents = this.getHiddenEventsForSlot(segments, current)
         if (hiddenEvents.length > 0) {
           let gap = current - lastEnd
           if (gap) {
@@ -51,7 +49,7 @@ class EventEndingRow extends React.Component {
           lastEnd = current = current + 1
           continue
         }
-
+        
         current++
         continue
       }
@@ -86,6 +84,23 @@ class EventEndingRow extends React.Component {
     }
 
     return <div className="rbc-row">{row}</div>
+  }
+
+  // New helper method to find hidden events for a slot
+  getHiddenEventsForSlot(segments, slot) {
+    // Get all events (visible and hidden) for this slot
+    const allEventsInSlot = eventsInSlot(segments, slot)
+    
+    // Get visible events for this slot from the first level
+    const rowSegments = eventLevels(segments).levels[0]
+    const visibleEventsInSlot = rowSegments
+      .filter(seg => isSegmentInSlot(seg, slot))
+      .map(seg => seg.event)
+    
+    // Return events that are in allEventsInSlot but not in visibleEventsInSlot
+    return allEventsInSlot.filter(
+      event => !visibleEventsInSlot.some(visEvent => visEvent === event)
+    )
   }
 
   canRenderSlotEvent(slot, span) {

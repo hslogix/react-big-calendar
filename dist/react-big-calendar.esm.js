@@ -2037,27 +2037,9 @@ function eventLevels(rowSegments) {
     seg,
     levels = [],
     extra = []
-
-  // Process segments ordered by `left` so that, within any level, the
-  // segments already placed there are mutually non-overlapping (that's
-  // what makes them a valid level) *and* sorted by `left` - which, given
-  // non-overlap, also means their `right` values are strictly increasing
-  // (if seg B follows seg A in the same level with A.left <= B.left, non-
-  // overlap forces A.right < B.left <= B.right). So a new segment's `left`
-  // either exceeds the level's last (rightmost) segment's `right` - no
-  // overlap with *anything* in the level - or it doesn't, in which case it
-  // can't be placed there. Checking just the last segment replaces what
-  // was an O(level size) scan per level per segment (quadratic in the
-  // event count for a heavily-populated week) with an O(1) check.
-  var sorted = _toConsumableArray(rowSegments).sort(function (a, b) {
-    return a.left - b.left
-  })
-  for (i = 0; i < sorted.length; i++) {
-    seg = sorted[i]
-    for (j = 0; j < levels.length; j++) {
-      var level = levels[j]
-      if (level[level.length - 1].right < seg.left) break
-    }
+  for (i = 0; i < rowSegments.length; i++) {
+    seg = rowSegments[i]
+    for (j = 0; j < levels.length; j++) if (!segsOverlap(seg, levels[j])) break
     if (j >= limit) {
       extra.push(seg)
     } else {
@@ -2086,6 +2068,11 @@ function inRange(e, start, end, accessors, localizer) {
   return localizer.inEventRange({
     event: event,
     range: range,
+  })
+}
+function segsOverlap(seg, otherSegs) {
+  return otherSegs.some(function (otherSeg) {
+    return otherSeg.left <= seg.right && otherSeg.right >= seg.left
   })
 }
 function sortWeekEvents(events, accessors, localizer) {
@@ -2194,11 +2181,9 @@ var EventEndingRow = /*#__PURE__*/ (function (_React$Component) {
             right = _ref.right,
             span = _ref.span
           if (!event) {
-            // No visible event starts at this slot (`rowSegments` has nothing
-            // covering `current`, which is exactly why we're in this branch),
-            // so every event covering this slot is hidden - no need to
-            // recompute levels and diff against an always-empty visible set.
-            var hiddenEvents = eventsInSlot(segments, current)
+            // No visible event starts at this slot, but check if we need a "more" button
+            // for hidden events that span this slot
+            var hiddenEvents = this.getHiddenEventsForSlot(segments, current)
             if (hiddenEvents.length > 0) {
               var _gap = current - lastEnd
               if (_gap) {
@@ -2248,6 +2233,32 @@ var EventEndingRow = /*#__PURE__*/ (function (_React$Component) {
           },
           row
         )
+      },
+
+      // New helper method to find hidden events for a slot
+    },
+    {
+      key: 'getHiddenEventsForSlot',
+      value: function getHiddenEventsForSlot(segments, slot) {
+        // Get all events (visible and hidden) for this slot
+        var allEventsInSlot = eventsInSlot(segments, slot)
+
+        // Get visible events for this slot from the first level
+        var rowSegments = eventLevels(segments).levels[0]
+        var visibleEventsInSlot = rowSegments
+          .filter(function (seg) {
+            return isSegmentInSlot$1(seg, slot)
+          })
+          .map(function (seg) {
+            return seg.event
+          })
+
+        // Return events that are in allEventsInSlot but not in visibleEventsInSlot
+        return allEventsInSlot.filter(function (event) {
+          return !visibleEventsInSlot.some(function (visEvent) {
+            return visEvent === event
+          })
+        })
       },
     },
     {
@@ -3028,6 +3039,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var _this2 = this
           var running
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
+          console.info('This is month view ', 1)
           window.addEventListener(
             'resize',
             (this._resizeListener = function () {
