@@ -125,7 +125,6 @@ class MonthView extends React.Component {
     let running
 
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
-    console.info('This is month view ', 1)
 
     window.addEventListener(
       'resize',

@@ -58,10 +58,26 @@ export function eventLevels(rowSegments, limit = Infinity) {
     levels = [],
     extra = []
 
-  for (i = 0; i < rowSegments.length; i++) {
-    seg = rowSegments[i]
+  // Process segments ordered by `left` so that, within any level, the
+  // segments already placed there are mutually non-overlapping (that's
+  // what makes them a valid level) *and* sorted by `left` - which, given
+  // non-overlap, also means their `right` values are strictly increasing
+  // (if seg B follows seg A in the same level with A.left <= B.left, non-
+  // overlap forces A.right < B.left <= B.right). So a new segment's `left`
+  // either exceeds the level's last (rightmost) segment's `right` - no
+  // overlap with *anything* in the level - or it doesn't, in which case it
+  // can't be placed there. Checking just the last segment replaces what
+  // was an O(level size) scan per level per segment (quadratic in the
+  // event count for a heavily-populated week) with an O(1) check.
+  const sorted = [...rowSegments].sort((a, b) => a.left - b.left)
 
-    for (j = 0; j < levels.length; j++) if (!segsOverlap(seg, levels[j])) break
+  for (i = 0; i < sorted.length; i++) {
+    seg = sorted[i]
+
+    for (j = 0; j < levels.length; j++) {
+      const level = levels[j]
+      if (level[level.length - 1].right < seg.left) break
+    }
 
     if (j >= limit) {
       extra.push(seg)
