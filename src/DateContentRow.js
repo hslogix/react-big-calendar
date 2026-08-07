@@ -10,6 +10,7 @@ import EventEndingRow from './EventEndingRow'
 import NoopWrapper from './NoopWrapper'
 import ScrollableWeekWrapper from './ScrollableWeekWrapper'
 import * as DateSlotMetrics from './utils/DateSlotMetrics'
+import { isSelected } from './utils/selection'
 
 class DateContentRow extends React.Component {
   constructor(...args) {
@@ -20,6 +21,33 @@ class DateContentRow extends React.Component {
     this.eventRowRef = createRef()
 
     this.slotMetrics = DateSlotMetrics.getSlotMetrics()
+  }
+
+  // `selected` is a single shared event reference threaded uniformly to
+  // every week row, so it changes identity for all of them whenever any
+  // event anywhere in the month is (de)selected. Without this check every
+  // week would re-render (and re-walk all of its events) on every
+  // selection change, even weeks with no relation to it.
+  shouldComponentUpdate(nextProps) {
+    const keys = new Set([
+      ...Object.keys(this.props),
+      ...Object.keys(nextProps),
+    ])
+
+    for (const key of keys) {
+      if (key === 'selected') continue
+      if (this.props[key] !== nextProps[key]) return true
+    }
+
+    if (this.props.selected === nextProps.selected) return false
+
+    const concernsThisWeek = (selected) =>
+      this.props.events.some((event) => isSelected(event, selected))
+
+    return (
+      concernsThisWeek(this.props.selected) ||
+      concernsThisWeek(nextProps.selected)
+    )
   }
 
   handleSelectSlot = (slot) => {
@@ -181,7 +209,11 @@ class DateContentRow extends React.Component {
             </div>
           )}
           <ScrollableWeekComponent>
-            <WeekWrapper isAllDay={isAllDay} {...eventRowProps} rtl={this.props.rtl}>
+            <WeekWrapper
+              isAllDay={isAllDay}
+              {...eventRowProps}
+              rtl={this.props.rtl}
+            >
               {levels.map((segs, idx) => (
                 <EventRow key={idx} segments={segs} {...eventRowProps} />
               ))}

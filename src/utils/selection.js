@@ -2,6 +2,11 @@ import isEqual from 'lodash/isEqual'
 
 export function isSelected(event, selected) {
   if (!event || selected == null) return false
+  // Fast path: this is checked for every rendered event on every render
+  // (Month/Week/Day/Agenda), so avoid the deep `isEqual` fallback below
+  // for the overwhelmingly common case where `selected` is literally the
+  // same object reference pulled from the `events` array.
+  if (event === selected) return true
   return isEqual(event, selected)
 }
 

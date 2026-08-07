@@ -43,13 +43,14 @@ import getPosition$1 from 'dom-helpers/position'
 import * as animationFrame from 'dom-helpers/animationFrame'
 import { Overlay } from 'react-overlays'
 import getOffset from 'dom-helpers/offset'
+import _createForOfIteratorHelper from '@babel/runtime/helpers/esm/createForOfIteratorHelper'
+import _toConsumableArray from '@babel/runtime/helpers/esm/toConsumableArray'
 import isEqual$1 from 'lodash/isEqual'
 import getHeight from 'dom-helpers/height'
 import qsa from 'dom-helpers/querySelectorAll'
 import contains from 'dom-helpers/contains'
 import closest from 'dom-helpers/closest'
 import listen from 'dom-helpers/listen'
-import _toConsumableArray from '@babel/runtime/helpers/esm/toConsumableArray'
 import findIndex from 'lodash/findIndex'
 import range$1 from 'lodash/range'
 import getWidth from 'dom-helpers/width'
@@ -590,6 +591,21 @@ var _excluded$7 = [
   'slotStart',
   'slotEnd',
 ]
+
+// Props that are intentionally rebuilt on every parent render (inline
+// closures, or objects `render()` itself derives from `getters`) and so
+// can never be reference-equal across renders. Excluding them from the
+// shouldComponentUpdate check lets a single event's selection/content
+// change skip re-rendering (and re-diffing the DOM for) every other event
+// cell in the month - a click previously forced every EventCell to
+// re-render because Component always re-renders on a parent update.
+var VOLATILE_PROPS = [
+  'style',
+  'className',
+  'children',
+  'onDragStart',
+  'onDragEnd',
+]
 var EventCell = /*#__PURE__*/ (function (_React$Component) {
   function EventCell() {
     _classCallCheck(this, EventCell)
@@ -597,6 +613,31 @@ var EventCell = /*#__PURE__*/ (function (_React$Component) {
   }
   _inherits(EventCell, _React$Component)
   return _createClass(EventCell, [
+    {
+      key: 'shouldComponentUpdate',
+      value: function shouldComponentUpdate(nextProps) {
+        var keys = new Set(
+          [].concat(
+            _toConsumableArray(Object.keys(this.props)),
+            _toConsumableArray(Object.keys(nextProps))
+          )
+        )
+        var _iterator = _createForOfIteratorHelper(keys),
+          _step
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+            var key = _step.value
+            if (VOLATILE_PROPS.includes(key)) continue
+            if (this.props[key] !== nextProps[key]) return true
+          }
+        } catch (err) {
+          _iterator.e(err)
+        } finally {
+          _iterator.f()
+        }
+        return false
+      },
+    },
     {
       key: 'render',
       value: function render() {
@@ -686,6 +727,11 @@ var EventCell = /*#__PURE__*/ (function (_React$Component) {
 
 function isSelected(event, selected) {
   if (!event || selected == null) return false
+  // Fast path: this is checked for every rendered event on every render
+  // (Month/Week/Day/Agenda), so avoid the deep `isEqual` fallback below
+  // for the overwhelmingly common case where `selected` is literally the
+  // same object reference pulled from the `events` array.
+  if (event === selected) return true
   return isEqual$1(event, selected)
 }
 function slotWidth(rowBox, slots) {
@@ -2433,8 +2479,49 @@ var DateContentRow = /*#__PURE__*/ (function (_React$Component) {
     _this.slotMetrics = getSlotMetrics$1()
     return _this
   }
+
+  // `selected` is a single shared event reference threaded uniformly to
+  // every week row, so it changes identity for all of them whenever any
+  // event anywhere in the month is (de)selected. Without this check every
+  // week would re-render (and re-walk all of its events) on every
+  // selection change, even weeks with no relation to it.
   _inherits(DateContentRow, _React$Component)
   return _createClass(DateContentRow, [
+    {
+      key: 'shouldComponentUpdate',
+      value: function shouldComponentUpdate(nextProps) {
+        var _this2 = this
+        var keys = new Set(
+          [].concat(
+            _toConsumableArray(Object.keys(this.props)),
+            _toConsumableArray(Object.keys(nextProps))
+          )
+        )
+        var _iterator = _createForOfIteratorHelper(keys),
+          _step
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+            var key = _step.value
+            if (key === 'selected') continue
+            if (this.props[key] !== nextProps[key]) return true
+          }
+        } catch (err) {
+          _iterator.e(err)
+        } finally {
+          _iterator.f()
+        }
+        if (this.props.selected === nextProps.selected) return false
+        var concernsThisWeek = function concernsThisWeek(selected) {
+          return _this2.props.events.some(function (event) {
+            return isSelected(event, selected)
+          })
+        }
+        return (
+          concernsThisWeek(this.props.selected) ||
+          concernsThisWeek(nextProps.selected)
+        )
+      },
+    },
     {
       key: 'getRowLimit',
       value: function getRowLimit() {
@@ -3670,16 +3757,6 @@ var TimeSlotGroup = /*#__PURE__*/ (function (_Component) {
     },
   ])
 })(Component)
-TimeSlotGroup.propTypes =
-  process.env.NODE_ENV !== 'production'
-    ? {
-        renderSlot: PropTypes.func,
-        group: PropTypes.array.isRequired,
-        resource: PropTypes.any,
-        components: PropTypes.object,
-        getters: PropTypes.object,
-      }
-    : {}
 
 function stringifyPercent(v) {
   return typeof v === 'string' ? v : v + '%'

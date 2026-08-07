@@ -2,7 +2,36 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import clsx from 'clsx'
 
+// Props that are intentionally rebuilt on every parent render (inline
+// closures, or objects `render()` itself derives from `getters`) and so
+// can never be reference-equal across renders. Excluding them from the
+// shouldComponentUpdate check lets a single event's selection/content
+// change skip re-rendering (and re-diffing the DOM for) every other event
+// cell in the month - a click previously forced every EventCell to
+// re-render because Component always re-renders on a parent update.
+const VOLATILE_PROPS = [
+  'style',
+  'className',
+  'children',
+  'onDragStart',
+  'onDragEnd',
+]
+
 class EventCell extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    const keys = new Set([
+      ...Object.keys(this.props),
+      ...Object.keys(nextProps),
+    ])
+
+    for (const key of keys) {
+      if (VOLATILE_PROPS.includes(key)) continue
+      if (this.props[key] !== nextProps[key]) return true
+    }
+
+    return false
+  }
+
   render() {
     let {
       style,
