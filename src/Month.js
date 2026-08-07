@@ -19,8 +19,47 @@ import DateHeader from './DateHeader'
 
 import { inRange, sortWeekEvents } from './utils/eventLevels'
 
-let eventsForWeek = (evts, start, end, accessors, localizer) =>
-  evts.filter((e) => inRange(e, start, end, accessors, localizer))
+const DAY_MS = 24 * 60 * 60 * 1000
+
+// Buckets the month's events into weeks in a single pass, rather than
+// scanning the full event list once per week - the previous approach cost
+// events*weeks calls into `inRange`, which is backed by several date-library
+// object allocations per call (moment/dayjs/luxon) and dominates render time
+// once there are a few thousand events.
+//
+// For each event we first do a cheap primitive-timestamp overlap check
+// against every week, padded by a full day to safely absorb any
+// day-boundary/timezone slack in `inRange`'s own (authoritative,
+// day-granularity) semantics - a week can only ever be wrongly *included*
+// as a candidate by this padding, never wrongly excluded, so it's safe to
+// use as a pre-filter. Only candidate weeks that pass it pay for the real
+// `inRange` check.
+function bucketEventsByWeek(events, weeks, accessors, localizer) {
+  const buckets = weeks.map(() => [])
+  const weekBounds = weeks.map((week) => ({
+    from: +week[0] - DAY_MS,
+    to: +week[week.length - 1] + DAY_MS,
+  }))
+
+  events.forEach((event) => {
+    const start = +accessors.start(event)
+    const end = +accessors.end(event)
+
+    for (let w = 0; w < weeks.length; w++) {
+      const { from, to } = weekBounds[w]
+      if (start > to || end < from) continue
+
+      const week = weeks[w]
+      if (
+        inRange(event, week[0], week[week.length - 1], accessors, localizer)
+      ) {
+        buckets[w].push(event)
+      }
+    }
+  })
+
+  return buckets
+}
 
 // `date` and `localizer` don't change identity on every render (`localizer`
 // is now stable from Calendar, `date` is stable while uncontrolled/unchanged),
@@ -54,9 +93,14 @@ class MonthView extends React.Component {
       weeksAreEqual
     )
 
-    // One memoized filter+sort per week row, keyed by week index, since a
-    // single shared memoize-one cache would be invalidated by every other
-    // week's call on the same render pass.
+    // Bucketing (see `bucketEventsByWeek`) runs once for the whole month;
+    // reference equality on `events`/`weeks`/`accessors`/`localizer` (all
+    // already stable across unrelated re-renders) is enough to cache it.
+    this.getEventsByWeek = memoize(bucketEventsByWeek)
+
+    // One memoized sort per week row, keyed by week index, since a single
+    // shared memoize-one cache would be invalidated by every other week's
+    // call on the same render pass.
     this._weekEventsMemo = []
   }
 
@@ -64,12 +108,8 @@ class MonthView extends React.Component {
     return (
       this._weekEventsMemo[weekIdx] ||
       (this._weekEventsMemo[weekIdx] = memoize(
-        (events, start, end, accessors, localizer) =>
-          sortWeekEvents(
-            eventsForWeek(events, start, end, accessors, localizer),
-            accessors,
-            localizer
-          )
+        (weekEvents, accessors, localizer) =>
+          sortWeekEvents(weekEvents, accessors, localizer)
       ))
     )
   }
@@ -85,6 +125,7 @@ class MonthView extends React.Component {
     let running
 
     if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
+    console.info('This is month view ', 1)
 
     window.addEventListener(
       'resize',
@@ -113,10 +154,16 @@ class MonthView extends React.Component {
   }
 
   render() {
-    let { date, localizer, className } = this.props,
+    let { date, localizer, className, events, accessors } = this.props,
       weeks = this.getWeeks(date, localizer)
 
     this._weekCount = weeks.length
+    this._eventsByWeek = this.getEventsByWeek(
+      events,
+      weeks,
+      accessors,
+      localizer
+    )
 
     return (
       <div
@@ -136,7 +183,6 @@ class MonthView extends React.Component {
 
   renderWeek = (week, weekIdx) => {
     let {
-      events,
       components,
       selectable,
       getNow,
@@ -152,9 +198,7 @@ class MonthView extends React.Component {
     const { needLimitMeasure, rowLimit } = this.state
 
     const sorted = this.getWeekEventsMemo(weekIdx)(
-      events,
-      week[0],
-      week[week.length - 1],
+      this._eventsByWeek[weekIdx],
       accessors,
       localizer
     )

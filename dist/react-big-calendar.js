@@ -6523,22 +6523,22 @@
    * _.toInteger('3.2');
    * // => 3
    */
-  function toInteger$2(value) {
+  function toInteger$1(value) {
     var result = toFinite$1(value),
       remainder = result % 1
 
     return result === result ? (remainder ? result - remainder : result) : 0
   }
 
-  var toInteger_1 = toInteger$2
+  var toInteger_1 = toInteger$1
 
   var baseSlice$1 = _baseSlice,
     isIterateeCall$3 = _isIterateeCall,
-    toInteger$1 = toInteger_1
+    toInteger = toInteger_1
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
   var nativeCeil$1 = Math.ceil,
-    nativeMax$3 = Math.max
+    nativeMax$2 = Math.max
 
   /**
    * Creates an array of elements split into groups the length of `size`.
@@ -6565,7 +6565,7 @@
     if (guard ? isIterateeCall$3(array, size, guard) : size === undefined) {
       size = 1
     } else {
-      size = nativeMax$3(toInteger$1(size), 0)
+      size = nativeMax$2(toInteger(size), 0)
     }
     var length = array == null ? 0 : array.length
     if (!length || size < 1) {
@@ -46248,873 +46248,6 @@
   })(React.Component)
   EventRow.defaultProps = _objectSpread2({}, EventRowMixin.defaultProps)
 
-  /**
-   * The base implementation of `_.findIndex` and `_.findLastIndex` without
-   * support for iteratee shorthands.
-   *
-   * @private
-   * @param {Array} array The array to inspect.
-   * @param {Function} predicate The function invoked per iteration.
-   * @param {number} fromIndex The index to search from.
-   * @param {boolean} [fromRight] Specify iterating from right to left.
-   * @returns {number} Returns the index of the matched value, else `-1`.
-   */
-
-  function baseFindIndex$1(array, predicate, fromIndex, fromRight) {
-    var length = array.length,
-      index = fromIndex + (fromRight ? 1 : -1)
-
-    while (fromRight ? index-- : ++index < length) {
-      if (predicate(array[index], index, array)) {
-        return index
-      }
-    }
-    return -1
-  }
-
-  var _baseFindIndex = baseFindIndex$1
-
-  var Stack$1 = _Stack,
-    baseIsEqual$1 = _baseIsEqual
-
-  /** Used to compose bitmasks for value comparisons. */
-  var COMPARE_PARTIAL_FLAG$1 = 1,
-    COMPARE_UNORDERED_FLAG$1 = 2
-
-  /**
-   * The base implementation of `_.isMatch` without support for iteratee shorthands.
-   *
-   * @private
-   * @param {Object} object The object to inspect.
-   * @param {Object} source The object of property values to match.
-   * @param {Array} matchData The property names, values, and compare flags to match.
-   * @param {Function} [customizer] The function to customize comparisons.
-   * @returns {boolean} Returns `true` if `object` is a match, else `false`.
-   */
-  function baseIsMatch$1(object, source, matchData, customizer) {
-    var index = matchData.length,
-      length = index,
-      noCustomizer = !customizer
-
-    if (object == null) {
-      return !length
-    }
-    object = Object(object)
-    while (index--) {
-      var data = matchData[index]
-      if (
-        noCustomizer && data[2]
-          ? data[1] !== object[data[0]]
-          : !(data[0] in object)
-      ) {
-        return false
-      }
-    }
-    while (++index < length) {
-      data = matchData[index]
-      var key = data[0],
-        objValue = object[key],
-        srcValue = data[1]
-
-      if (noCustomizer && data[2]) {
-        if (objValue === undefined && !(key in object)) {
-          return false
-        }
-      } else {
-        var stack = new Stack$1()
-        if (customizer) {
-          var result = customizer(
-            objValue,
-            srcValue,
-            key,
-            object,
-            source,
-            stack
-          )
-        }
-        if (
-          !(result === undefined
-            ? baseIsEqual$1(
-                srcValue,
-                objValue,
-                COMPARE_PARTIAL_FLAG$1 | COMPARE_UNORDERED_FLAG$1,
-                customizer,
-                stack
-              )
-            : result)
-        ) {
-          return false
-        }
-      }
-    }
-    return true
-  }
-
-  var _baseIsMatch = baseIsMatch$1
-
-  var isObject$4 = isObject_1
-
-  /**
-   * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
-   *
-   * @private
-   * @param {*} value The value to check.
-   * @returns {boolean} Returns `true` if `value` if suitable for strict
-   *  equality comparisons, else `false`.
-   */
-  function isStrictComparable$2(value) {
-    return value === value && !isObject$4(value)
-  }
-
-  var _isStrictComparable = isStrictComparable$2
-
-  var isStrictComparable$1 = _isStrictComparable,
-    keys$3 = keys_1
-
-  /**
-   * Gets the property names, values, and compare flags of `object`.
-   *
-   * @private
-   * @param {Object} object The object to query.
-   * @returns {Array} Returns the match data of `object`.
-   */
-  function getMatchData$1(object) {
-    var result = keys$3(object),
-      length = result.length
-
-    while (length--) {
-      var key = result[length],
-        value = object[key]
-
-      result[length] = [key, value, isStrictComparable$1(value)]
-    }
-    return result
-  }
-
-  var _getMatchData = getMatchData$1
-
-  /**
-   * A specialized version of `matchesProperty` for source values suitable
-   * for strict equality comparisons, i.e. `===`.
-   *
-   * @private
-   * @param {string} key The key of the property to get.
-   * @param {*} srcValue The value to match.
-   * @returns {Function} Returns the new spec function.
-   */
-
-  function matchesStrictComparable$2(key, srcValue) {
-    return function (object) {
-      if (object == null) {
-        return false
-      }
-      return (
-        object[key] === srcValue &&
-        (srcValue !== undefined || key in Object(object))
-      )
-    }
-  }
-
-  var _matchesStrictComparable = matchesStrictComparable$2
-
-  var baseIsMatch = _baseIsMatch,
-    getMatchData = _getMatchData,
-    matchesStrictComparable$1 = _matchesStrictComparable
-
-  /**
-   * The base implementation of `_.matches` which doesn't clone `source`.
-   *
-   * @private
-   * @param {Object} source The object of property values to match.
-   * @returns {Function} Returns the new spec function.
-   */
-  function baseMatches$1(source) {
-    var matchData = getMatchData(source)
-    if (matchData.length == 1 && matchData[0][2]) {
-      return matchesStrictComparable$1(matchData[0][0], matchData[0][1])
-    }
-    return function (object) {
-      return object === source || baseIsMatch(object, source, matchData)
-    }
-  }
-
-  var _baseMatches = baseMatches$1
-
-  var isArray$8 = isArray_1,
-    isSymbol$3 = isSymbol_1
-
-  /** Used to match property names within property paths. */
-  var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
-    reIsPlainProp = /^\w*$/
-
-  /**
-   * Checks if `value` is a property name and not a property path.
-   *
-   * @private
-   * @param {*} value The value to check.
-   * @param {Object} [object] The object to query keys on.
-   * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
-   */
-  function isKey$3(value, object) {
-    if (isArray$8(value)) {
-      return false
-    }
-    var type = typeof value
-    if (
-      type == 'number' ||
-      type == 'symbol' ||
-      type == 'boolean' ||
-      value == null ||
-      isSymbol$3(value)
-    ) {
-      return true
-    }
-    return (
-      reIsPlainProp.test(value) ||
-      !reIsDeepProp.test(value) ||
-      (object != null && value in Object(object))
-    )
-  }
-
-  var _isKey = isKey$3
-
-  var MapCache = _MapCache
-
-  /** Error message constants. */
-  var FUNC_ERROR_TEXT = 'Expected a function'
-
-  /**
-   * Creates a function that memoizes the result of `func`. If `resolver` is
-   * provided, it determines the cache key for storing the result based on the
-   * arguments provided to the memoized function. By default, the first argument
-   * provided to the memoized function is used as the map cache key. The `func`
-   * is invoked with the `this` binding of the memoized function.
-   *
-   * **Note:** The cache is exposed as the `cache` property on the memoized
-   * function. Its creation may be customized by replacing the `_.memoize.Cache`
-   * constructor with one whose instances implement the
-   * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
-   * method interface of `clear`, `delete`, `get`, `has`, and `set`.
-   *
-   * @static
-   * @memberOf _
-   * @since 0.1.0
-   * @category Function
-   * @param {Function} func The function to have its output memoized.
-   * @param {Function} [resolver] The function to resolve the cache key.
-   * @returns {Function} Returns the new memoized function.
-   * @example
-   *
-   * var object = { 'a': 1, 'b': 2 };
-   * var other = { 'c': 3, 'd': 4 };
-   *
-   * var values = _.memoize(_.values);
-   * values(object);
-   * // => [1, 2]
-   *
-   * values(other);
-   * // => [3, 4]
-   *
-   * object.a = 2;
-   * values(object);
-   * // => [1, 2]
-   *
-   * // Modify the result cache.
-   * values.cache.set(object, ['a', 'b']);
-   * values(object);
-   * // => ['a', 'b']
-   *
-   * // Replace `_.memoize.Cache`.
-   * _.memoize.Cache = WeakMap;
-   */
-  function memoize$1(func, resolver) {
-    if (
-      typeof func != 'function' ||
-      (resolver != null && typeof resolver != 'function')
-    ) {
-      throw new TypeError(FUNC_ERROR_TEXT)
-    }
-    var memoized = function () {
-      var args = arguments,
-        key = resolver ? resolver.apply(this, args) : args[0],
-        cache = memoized.cache
-
-      if (cache.has(key)) {
-        return cache.get(key)
-      }
-      var result = func.apply(this, args)
-      memoized.cache = cache.set(key, result) || cache
-      return result
-    }
-    memoized.cache = new (memoize$1.Cache || MapCache)()
-    return memoized
-  }
-
-  // Expose `MapCache`.
-  memoize$1.Cache = MapCache
-
-  var memoize_1 = memoize$1
-
-  var memoize = memoize_1
-
-  /** Used as the maximum memoize cache size. */
-  var MAX_MEMOIZE_SIZE = 500
-
-  /**
-   * A specialized version of `_.memoize` which clears the memoized function's
-   * cache when it exceeds `MAX_MEMOIZE_SIZE`.
-   *
-   * @private
-   * @param {Function} func The function to have its output memoized.
-   * @returns {Function} Returns the new memoized function.
-   */
-  function memoizeCapped$1(func) {
-    var result = memoize(func, function (key) {
-      if (cache.size === MAX_MEMOIZE_SIZE) {
-        cache.clear()
-      }
-      return key
-    })
-
-    var cache = result.cache
-    return result
-  }
-
-  var _memoizeCapped = memoizeCapped$1
-
-  var memoizeCapped = _memoizeCapped
-
-  /** Used to match property names within property paths. */
-  var rePropName =
-    /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g
-
-  /** Used to match backslashes in property paths. */
-  var reEscapeChar = /\\(\\)?/g
-
-  /**
-   * Converts `string` to a property path array.
-   *
-   * @private
-   * @param {string} string The string to convert.
-   * @returns {Array} Returns the property path array.
-   */
-  var stringToPath$1 = memoizeCapped(function (string) {
-    var result = []
-    if (string.charCodeAt(0) === 46 /* . */) {
-      result.push('')
-    }
-    string.replace(rePropName, function (match, number, quote, subString) {
-      result.push(
-        quote ? subString.replace(reEscapeChar, '$1') : number || match
-      )
-    })
-    return result
-  })
-
-  var _stringToPath = stringToPath$1
-
-  /**
-   * A specialized version of `_.map` for arrays without support for iteratee
-   * shorthands.
-   *
-   * @private
-   * @param {Array} [array] The array to iterate over.
-   * @param {Function} iteratee The function invoked per iteration.
-   * @returns {Array} Returns the new mapped array.
-   */
-
-  function arrayMap$3(array, iteratee) {
-    var index = -1,
-      length = array == null ? 0 : array.length,
-      result = Array(length)
-
-    while (++index < length) {
-      result[index] = iteratee(array[index], index, array)
-    }
-    return result
-  }
-
-  var _arrayMap = arrayMap$3
-
-  var Symbol$3 = _Symbol,
-    arrayMap$2 = _arrayMap,
-    isArray$7 = isArray_1,
-    isSymbol$2 = isSymbol_1
-
-  /** Used as references for various `Number` constants. */
-  var INFINITY$1 = 1 / 0
-
-  /** Used to convert symbols to primitives and strings. */
-  var symbolProto$1 = Symbol$3 ? Symbol$3.prototype : undefined,
-    symbolToString = symbolProto$1 ? symbolProto$1.toString : undefined
-
-  /**
-   * The base implementation of `_.toString` which doesn't convert nullish
-   * values to empty strings.
-   *
-   * @private
-   * @param {*} value The value to process.
-   * @returns {string} Returns the string.
-   */
-  function baseToString$1(value) {
-    // Exit early for strings to avoid a performance hit in some environments.
-    if (typeof value == 'string') {
-      return value
-    }
-    if (isArray$7(value)) {
-      // Recursively convert values (susceptible to call stack limits).
-      return arrayMap$2(value, baseToString$1) + ''
-    }
-    if (isSymbol$2(value)) {
-      return symbolToString ? symbolToString.call(value) : ''
-    }
-    var result = value + ''
-    return result == '0' && 1 / value == -INFINITY$1 ? '-0' : result
-  }
-
-  var _baseToString = baseToString$1
-
-  var baseToString = _baseToString
-
-  /**
-   * Converts `value` to a string. An empty string is returned for `null`
-   * and `undefined` values. The sign of `-0` is preserved.
-   *
-   * @static
-   * @memberOf _
-   * @since 4.0.0
-   * @category Lang
-   * @param {*} value The value to convert.
-   * @returns {string} Returns the converted string.
-   * @example
-   *
-   * _.toString(null);
-   * // => ''
-   *
-   * _.toString(-0);
-   * // => '-0'
-   *
-   * _.toString([1, 2, 3]);
-   * // => '1,2,3'
-   */
-  function toString$1(value) {
-    return value == null ? '' : baseToString(value)
-  }
-
-  var toString_1 = toString$1
-
-  var isArray$6 = isArray_1,
-    isKey$2 = _isKey,
-    stringToPath = _stringToPath,
-    toString = toString_1
-
-  /**
-   * Casts `value` to a path array if it's not one.
-   *
-   * @private
-   * @param {*} value The value to inspect.
-   * @param {Object} [object] The object to query keys on.
-   * @returns {Array} Returns the cast property path array.
-   */
-  function castPath$4(value, object) {
-    if (isArray$6(value)) {
-      return value
-    }
-    return isKey$2(value, object) ? [value] : stringToPath(toString(value))
-  }
-
-  var _castPath = castPath$4
-
-  var isSymbol$1 = isSymbol_1
-
-  /** Used as references for various `Number` constants. */
-  var INFINITY = 1 / 0
-
-  /**
-   * Converts `value` to a string key if it's not a string or symbol.
-   *
-   * @private
-   * @param {*} value The value to inspect.
-   * @returns {string|symbol} Returns the key.
-   */
-  function toKey$5(value) {
-    if (typeof value == 'string' || isSymbol$1(value)) {
-      return value
-    }
-    var result = value + ''
-    return result == '0' && 1 / value == -INFINITY ? '-0' : result
-  }
-
-  var _toKey = toKey$5
-
-  var castPath$3 = _castPath,
-    toKey$4 = _toKey
-
-  /**
-   * The base implementation of `_.get` without support for default values.
-   *
-   * @private
-   * @param {Object} object The object to query.
-   * @param {Array|string} path The path of the property to get.
-   * @returns {*} Returns the resolved value.
-   */
-  function baseGet$4(object, path) {
-    path = castPath$3(path, object)
-
-    var index = 0,
-      length = path.length
-
-    while (object != null && index < length) {
-      object = object[toKey$4(path[index++])]
-    }
-    return index && index == length ? object : undefined
-  }
-
-  var _baseGet = baseGet$4
-
-  var baseGet$3 = _baseGet
-
-  /**
-   * Gets the value at `path` of `object`. If the resolved value is
-   * `undefined`, the `defaultValue` is returned in its place.
-   *
-   * @static
-   * @memberOf _
-   * @since 3.7.0
-   * @category Object
-   * @param {Object} object The object to query.
-   * @param {Array|string} path The path of the property to get.
-   * @param {*} [defaultValue] The value returned for `undefined` resolved values.
-   * @returns {*} Returns the resolved value.
-   * @example
-   *
-   * var object = { 'a': [{ 'b': { 'c': 3 } }] };
-   *
-   * _.get(object, 'a[0].b.c');
-   * // => 3
-   *
-   * _.get(object, ['a', '0', 'b', 'c']);
-   * // => 3
-   *
-   * _.get(object, 'a.b.c', 'default');
-   * // => 'default'
-   */
-  function get$1(object, path, defaultValue) {
-    var result = object == null ? undefined : baseGet$3(object, path)
-    return result === undefined ? defaultValue : result
-  }
-
-  var get_1 = get$1
-
-  /**
-   * The base implementation of `_.hasIn` without support for deep paths.
-   *
-   * @private
-   * @param {Object} [object] The object to query.
-   * @param {Array|string} key The key to check.
-   * @returns {boolean} Returns `true` if `key` exists, else `false`.
-   */
-
-  function baseHasIn$1(object, key) {
-    return object != null && key in Object(object)
-  }
-
-  var _baseHasIn = baseHasIn$1
-
-  var castPath$2 = _castPath,
-    isArguments$1 = isArguments_1,
-    isArray$5 = isArray_1,
-    isIndex = _isIndex,
-    isLength = isLength_1,
-    toKey$3 = _toKey
-
-  /**
-   * Checks if `path` exists on `object`.
-   *
-   * @private
-   * @param {Object} object The object to query.
-   * @param {Array|string} path The path to check.
-   * @param {Function} hasFunc The function to check properties.
-   * @returns {boolean} Returns `true` if `path` exists, else `false`.
-   */
-  function hasPath$1(object, path, hasFunc) {
-    path = castPath$2(path, object)
-
-    var index = -1,
-      length = path.length,
-      result = false
-
-    while (++index < length) {
-      var key = toKey$3(path[index])
-      if (!(result = object != null && hasFunc(object, key))) {
-        break
-      }
-      object = object[key]
-    }
-    if (result || ++index != length) {
-      return result
-    }
-    length = object == null ? 0 : object.length
-    return (
-      !!length &&
-      isLength(length) &&
-      isIndex(key, length) &&
-      (isArray$5(object) || isArguments$1(object))
-    )
-  }
-
-  var _hasPath = hasPath$1
-
-  var baseHasIn = _baseHasIn,
-    hasPath = _hasPath
-
-  /**
-   * Checks if `path` is a direct or inherited property of `object`.
-   *
-   * @static
-   * @memberOf _
-   * @since 4.0.0
-   * @category Object
-   * @param {Object} object The object to query.
-   * @param {Array|string} path The path to check.
-   * @returns {boolean} Returns `true` if `path` exists, else `false`.
-   * @example
-   *
-   * var object = _.create({ 'a': _.create({ 'b': 2 }) });
-   *
-   * _.hasIn(object, 'a');
-   * // => true
-   *
-   * _.hasIn(object, 'a.b');
-   * // => true
-   *
-   * _.hasIn(object, ['a', 'b']);
-   * // => true
-   *
-   * _.hasIn(object, 'b');
-   * // => false
-   */
-  function hasIn$1(object, path) {
-    return object != null && hasPath(object, path, baseHasIn)
-  }
-
-  var hasIn_1 = hasIn$1
-
-  var baseIsEqual = _baseIsEqual,
-    get = get_1,
-    hasIn = hasIn_1,
-    isKey$1 = _isKey,
-    isStrictComparable = _isStrictComparable,
-    matchesStrictComparable = _matchesStrictComparable,
-    toKey$2 = _toKey
-
-  /** Used to compose bitmasks for value comparisons. */
-  var COMPARE_PARTIAL_FLAG = 1,
-    COMPARE_UNORDERED_FLAG = 2
-
-  /**
-   * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
-   *
-   * @private
-   * @param {string} path The path of the property to get.
-   * @param {*} srcValue The value to match.
-   * @returns {Function} Returns the new spec function.
-   */
-  function baseMatchesProperty$1(path, srcValue) {
-    if (isKey$1(path) && isStrictComparable(srcValue)) {
-      return matchesStrictComparable(toKey$2(path), srcValue)
-    }
-    return function (object) {
-      var objValue = get(object, path)
-      return objValue === undefined && objValue === srcValue
-        ? hasIn(object, path)
-        : baseIsEqual(
-            srcValue,
-            objValue,
-            COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG
-          )
-    }
-  }
-
-  var _baseMatchesProperty = baseMatchesProperty$1
-
-  /**
-   * This method returns the first argument it receives.
-   *
-   * @static
-   * @since 0.1.0
-   * @memberOf _
-   * @category Util
-   * @param {*} value Any value.
-   * @returns {*} Returns `value`.
-   * @example
-   *
-   * var object = { 'a': 1 };
-   *
-   * console.log(_.identity(object) === object);
-   * // => true
-   */
-
-  function identity$4(value) {
-    return value
-  }
-
-  var identity_1 = identity$4
-
-  /**
-   * The base implementation of `_.property` without support for deep paths.
-   *
-   * @private
-   * @param {string} key The key of the property to get.
-   * @returns {Function} Returns the new accessor function.
-   */
-
-  function baseProperty$1(key) {
-    return function (object) {
-      return object == null ? undefined : object[key]
-    }
-  }
-
-  var _baseProperty = baseProperty$1
-
-  var baseGet$2 = _baseGet
-
-  /**
-   * A specialized version of `baseProperty` which supports deep paths.
-   *
-   * @private
-   * @param {Array|string} path The path of the property to get.
-   * @returns {Function} Returns the new accessor function.
-   */
-  function basePropertyDeep$1(path) {
-    return function (object) {
-      return baseGet$2(object, path)
-    }
-  }
-
-  var _basePropertyDeep = basePropertyDeep$1
-
-  var baseProperty = _baseProperty,
-    basePropertyDeep = _basePropertyDeep,
-    isKey = _isKey,
-    toKey$1 = _toKey
-
-  /**
-   * Creates a function that returns the value at `path` of a given object.
-   *
-   * @static
-   * @memberOf _
-   * @since 2.4.0
-   * @category Util
-   * @param {Array|string} path The path of the property to get.
-   * @returns {Function} Returns the new accessor function.
-   * @example
-   *
-   * var objects = [
-   *   { 'a': { 'b': 2 } },
-   *   { 'a': { 'b': 1 } }
-   * ];
-   *
-   * _.map(objects, _.property('a.b'));
-   * // => [2, 1]
-   *
-   * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
-   * // => [1, 2]
-   */
-  function property$1(path) {
-    return isKey(path) ? baseProperty(toKey$1(path)) : basePropertyDeep(path)
-  }
-
-  var property_1 = property$1
-
-  var baseMatches = _baseMatches,
-    baseMatchesProperty = _baseMatchesProperty,
-    identity$3 = identity_1,
-    isArray$4 = isArray_1,
-    property = property_1
-
-  /**
-   * The base implementation of `_.iteratee`.
-   *
-   * @private
-   * @param {*} [value=_.identity] The value to convert to an iteratee.
-   * @returns {Function} Returns the iteratee.
-   */
-  function baseIteratee$4(value) {
-    // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
-    // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
-    if (typeof value == 'function') {
-      return value
-    }
-    if (value == null) {
-      return identity$3
-    }
-    if (typeof value == 'object') {
-      return isArray$4(value)
-        ? baseMatchesProperty(value[0], value[1])
-        : baseMatches(value)
-    }
-    return property(value)
-  }
-
-  var _baseIteratee = baseIteratee$4
-
-  var baseFindIndex = _baseFindIndex,
-    baseIteratee$3 = _baseIteratee,
-    toInteger = toInteger_1
-
-  /* Built-in method references for those with the same name as other `lodash` methods. */
-  var nativeMax$2 = Math.max
-
-  /**
-   * This method is like `_.find` except that it returns the index of the first
-   * element `predicate` returns truthy for instead of the element itself.
-   *
-   * @static
-   * @memberOf _
-   * @since 1.1.0
-   * @category Array
-   * @param {Array} array The array to inspect.
-   * @param {Function} [predicate=_.identity] The function invoked per iteration.
-   * @param {number} [fromIndex=0] The index to search from.
-   * @returns {number} Returns the index of the found element, else `-1`.
-   * @example
-   *
-   * var users = [
-   *   { 'user': 'barney',  'active': false },
-   *   { 'user': 'fred',    'active': false },
-   *   { 'user': 'pebbles', 'active': true }
-   * ];
-   *
-   * _.findIndex(users, function(o) { return o.user == 'barney'; });
-   * // => 0
-   *
-   * // The `_.matches` iteratee shorthand.
-   * _.findIndex(users, { 'user': 'fred', 'active': false });
-   * // => 1
-   *
-   * // The `_.matchesProperty` iteratee shorthand.
-   * _.findIndex(users, ['active', false]);
-   * // => 0
-   *
-   * // The `_.property` iteratee shorthand.
-   * _.findIndex(users, 'active');
-   * // => 2
-   */
-  function findIndex(array, predicate, fromIndex) {
-    var length = array == null ? 0 : array.length
-    if (!length) {
-      return -1
-    }
-    var index = fromIndex == null ? 0 : toInteger(fromIndex)
-    if (index < 0) {
-      index = nativeMax$2(length + index, 0)
-    }
-    return baseFindIndex(array, baseIteratee$3(predicate), index)
-  }
-
-  var findIndex_1 = findIndex
-
   function endOfRange(_ref) {
     var dateRange = _ref.dateRange,
       _ref$unit = _ref.unit,
@@ -47128,22 +46261,43 @@
 
   // properly calculating segments requires working with dates in
   // the timezone we're working with, so we use the localizer
-  function eventSegments(event, range, accessors, localizer) {
-    var _endOfRange = endOfRange({
-        dateRange: range,
-        localizer: localizer,
-      }),
-      first = _endOfRange.first,
-      last = _endOfRange.last
-    var slots = localizer.diff(first, last, 'day')
+  //
+  // `rangeInfo` is an optional `{ first, last, slots }` (see `endOfRange`,
+  // plus the `slots` day-diff between them) precomputed by the caller. It's
+  // identical for every event sharing the same `range`, so a caller mapping
+  // this over many events (DateSlotMetrics) can compute it once instead of
+  // paying for `endOfRange`'s `localizer.add` and an extra `localizer.diff`
+  // on every single call.
+  function eventSegments(event, range, accessors, localizer, rangeInfo) {
+    var _ref2 =
+        rangeInfo ||
+        (function () {
+          var bounds = endOfRange({
+            dateRange: range,
+            localizer: localizer,
+          })
+          return _objectSpread2(
+            _objectSpread2({}, bounds),
+            {},
+            {
+              slots: localizer.diff(bounds.first, bounds.last, 'day'),
+            }
+          )
+        })(),
+      first = _ref2.first,
+      last = _ref2.last,
+      slots = _ref2.slots
     var start = localizer.max(
       localizer.startOf(accessors.start(event), 'day'),
       first
     )
     var end = localizer.min(localizer.ceil(accessors.end(event), 'day'), last)
-    var padding = findIndex_1(range, function (x) {
-      return localizer.isSameDate(x, start)
-    })
+
+    // `start` is always clamped to be >= `first` (`range[0]`) and both are
+    // day-aligned, so its position within `range` is exactly their day
+    // difference - equivalent to, but far cheaper than, scanning `range`
+    // with a per-day `isSameDate` check.
+    var padding = localizer.diff(first, start, 'day')
     var span = localizer.diff(start, end, 'day')
     span = Math.min(span, slots)
     // The segmentOffset is necessary when adjusting for timezones
@@ -47206,28 +46360,50 @@
     })
   }
   function sortWeekEvents(events, accessors, localizer) {
-    var base = _toConsumableArray(events)
-    var multiDayEvents = []
-    var standardEvents = []
-    base.forEach(function (event) {
-      var startCheck = accessors.start(event)
-      var endCheck = accessors.end(event)
-      if (localizer.daySpan(startCheck, endCheck) > 1) {
-        multiDayEvents.push(event)
-      } else {
-        standardEvents.push(event)
+    // `localizer.sortEvents` (moment/dayjs/luxon, and the shared default used
+    // by date-fns/globalize) is always built from just `startOf(start, 'day')`
+    // and `daySpan(start, end)`, each of which allocates date-library objects
+    // internally. Calling it as a sort comparator re-derives both for every
+    // pairwise comparison - O(m log m) allocations for a sort of m events.
+    // Decorating each event with those two values once up front (O(m)) and
+    // comparing the plain numbers instead reproduces the exact same ordering
+    // at a fraction of the cost.
+    var decorated = events.map(function (event) {
+      var start = accessors.start(event)
+      var end = accessors.end(event)
+      return {
+        event: event,
+        start: start,
+        end: end,
+        allDay: accessors.allDay(event),
+        startOfDay: +localizer.startOf(start, 'day'),
+        daySpan: localizer.daySpan(start, end),
       }
     })
-    var multiSorted = multiDayEvents.sort(function (a, b) {
-      return sortEvents(a, b, accessors, localizer)
+    var multiDayEvents = []
+    var standardEvents = []
+    decorated.forEach(function (d) {
+      return (d.daySpan > 1 ? multiDayEvents : standardEvents).push(d)
     })
-    var standardSorted = standardEvents.sort(function (a, b) {
-      return sortEvents(a, b, accessors, localizer)
+    var compare = function compare(a, b) {
+      return (
+        a.startOfDay - b.startOfDay ||
+        // sort by start Day first
+        b.daySpan - a.daySpan ||
+        // events spanning multiple days go first
+        !!b.allDay - !!a.allDay ||
+        // then allDay single day events
+        +a.start - +b.start ||
+        // then sort by start time
+        +a.end - +b.end
+      )
+    } // then sort by end time
+
+    multiDayEvents.sort(compare)
+    standardEvents.sort(compare)
+    return [].concat(multiDayEvents, standardEvents).map(function (d) {
+      return d.event
     })
-    return [].concat(
-      _toConsumableArray(multiSorted),
-      _toConsumableArray(standardSorted)
-    )
   }
   function sortEvents(eventA, eventB, accessors, localizer) {
     var evtA = {
@@ -47580,8 +46756,13 @@
         }),
         first = _endOfRange.first,
         last = _endOfRange.last
+      var rangeInfo = {
+        first: first,
+        last: last,
+        slots: localizer.diff(first, last, 'day'),
+      }
       var segments = events.map(function (evt) {
-        return eventSegments(evt, range, accessors, localizer)
+        return eventSegments(evt, range, accessors, localizer, rangeInfo)
       })
       var _eventLevels = eventLevels(segments, Math.max(maxRows - 1, 1)),
         levels = _eventLevels.levels,
@@ -47976,16 +47157,48 @@
   }
 
   var _excluded$6 = ['date', 'className']
-  var eventsForWeek = function eventsForWeek(
-    evts,
-    start,
-    end,
-    accessors,
-    localizer
-  ) {
-    return evts.filter(function (e) {
-      return inRange(e, start, end, accessors, localizer)
+  var DAY_MS = 24 * 60 * 60 * 1000
+
+  // Buckets the month's events into weeks in a single pass, rather than
+  // scanning the full event list once per week - the previous approach cost
+  // events*weeks calls into `inRange`, which is backed by several date-library
+  // object allocations per call (moment/dayjs/luxon) and dominates render time
+  // once there are a few thousand events.
+  //
+  // For each event we first do a cheap primitive-timestamp overlap check
+  // against every week, padded by a full day to safely absorb any
+  // day-boundary/timezone slack in `inRange`'s own (authoritative,
+  // day-granularity) semantics - a week can only ever be wrongly *included*
+  // as a candidate by this padding, never wrongly excluded, so it's safe to
+  // use as a pre-filter. Only candidate weeks that pass it pay for the real
+  // `inRange` check.
+  function bucketEventsByWeek(events, weeks, accessors, localizer) {
+    var buckets = weeks.map(function () {
+      return []
     })
+    var weekBounds = weeks.map(function (week) {
+      return {
+        from: +week[0] - DAY_MS,
+        to: +week[week.length - 1] + DAY_MS,
+      }
+    })
+    events.forEach(function (event) {
+      var start = +accessors.start(event)
+      var end = +accessors.end(event)
+      for (var w = 0; w < weeks.length; w++) {
+        var _weekBounds$w = weekBounds[w],
+          from = _weekBounds$w.from,
+          to = _weekBounds$w.to
+        if (start > to || end < from) continue
+        var week = weeks[w]
+        if (
+          inRange(event, week[0], week[week.length - 1], accessors, localizer)
+        ) {
+          buckets[w].push(event)
+        }
+      }
+    })
+    return buckets
   }
 
   // `date` and `localizer` don't change identity on every render (`localizer`
@@ -48020,7 +47233,6 @@
       }
       _this.renderWeek = function (week, weekIdx) {
         var _this$props = _this.props,
-          events = _this$props.events,
           components = _this$props.components,
           selectable = _this$props.selectable,
           getNow = _this$props.getNow,
@@ -48035,9 +47247,7 @@
           needLimitMeasure = _this$state.needLimitMeasure,
           rowLimit = _this$state.rowLimit
         var sorted = _this.getWeekEventsMemo(weekIdx)(
-          events,
-          week[0],
-          week[week.length - 1],
+          _this._eventsByWeek[weekIdx],
           accessors,
           localizer
         )
@@ -48198,9 +47408,14 @@
         return chunk_1(localizer.visibleDays(date, localizer), 7)
       }, weeksAreEqual)
 
-      // One memoized filter+sort per week row, keyed by week index, since a
-      // single shared memoize-one cache would be invalidated by every other
-      // week's call on the same render pass.
+      // Bucketing (see `bucketEventsByWeek`) runs once for the whole month;
+      // reference equality on `events`/`weeks`/`accessors`/`localizer` (all
+      // already stable across unrelated re-renders) is enough to cache it.
+      _this.getEventsByWeek = memoizeOne(bucketEventsByWeek)
+
+      // One memoized sort per week row, keyed by week index, since a single
+      // shared memoize-one cache would be invalidated by every other week's
+      // call on the same render pass.
       _this._weekEventsMemo = []
       return _this
     }
@@ -48214,17 +47429,11 @@
             return (
               this._weekEventsMemo[weekIdx] ||
               (this._weekEventsMemo[weekIdx] = memoizeOne(function (
-                events,
-                start,
-                end,
+                weekEvents,
                 accessors,
                 localizer
               ) {
-                return sortWeekEvents(
-                  eventsForWeek(events, start, end, accessors, localizer),
-                  accessors,
-                  localizer
-                )
+                return sortWeekEvents(weekEvents, accessors, localizer)
               }))
             )
           },
@@ -48235,6 +47444,7 @@
             var _this2 = this
             var running
             if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
+            console.info('This is month view ', 1)
             window.addEventListener(
               'resize',
               (this._resizeListener = function () {
@@ -48270,8 +47480,16 @@
               date = _this$props4.date,
               localizer = _this$props4.localizer,
               className = _this$props4.className,
+              events = _this$props4.events,
+              accessors = _this$props4.accessors,
               weeks = this.getWeeks(date, localizer)
             this._weekCount = weeks.length
+            this._eventsByWeek = this.getEventsByWeek(
+              events,
+              weeks,
+              accessors,
+              localizer
+            )
             return /*#__PURE__*/ React.createElement(
               'div',
               {
@@ -48640,12 +47858,12 @@
     }
   }
 
-  var Symbol$2 = _Symbol,
-    isArguments = isArguments_1,
-    isArray$3 = isArray_1
+  var Symbol$3 = _Symbol,
+    isArguments$1 = isArguments_1,
+    isArray$8 = isArray_1
 
   /** Built-in value references. */
-  var spreadableSymbol = Symbol$2 ? Symbol$2.isConcatSpreadable : undefined
+  var spreadableSymbol = Symbol$3 ? Symbol$3.isConcatSpreadable : undefined
 
   /**
    * Checks if `value` is a flattenable `arguments` object or array.
@@ -48656,8 +47874,8 @@
    */
   function isFlattenable$1(value) {
     return (
-      isArray$3(value) ||
-      isArguments(value) ||
+      isArray$8(value) ||
+      isArguments$1(value) ||
       !!(spreadableSymbol && value && value[spreadableSymbol])
     )
   }
@@ -48702,6 +47920,791 @@
   }
 
   var _baseFlatten = baseFlatten$2
+
+  /**
+   * A specialized version of `_.map` for arrays without support for iteratee
+   * shorthands.
+   *
+   * @private
+   * @param {Array} [array] The array to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {Array} Returns the new mapped array.
+   */
+
+  function arrayMap$3(array, iteratee) {
+    var index = -1,
+      length = array == null ? 0 : array.length,
+      result = Array(length)
+
+    while (++index < length) {
+      result[index] = iteratee(array[index], index, array)
+    }
+    return result
+  }
+
+  var _arrayMap = arrayMap$3
+
+  var isArray$7 = isArray_1,
+    isSymbol$3 = isSymbol_1
+
+  /** Used to match property names within property paths. */
+  var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+    reIsPlainProp = /^\w*$/
+
+  /**
+   * Checks if `value` is a property name and not a property path.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @param {Object} [object] The object to query keys on.
+   * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+   */
+  function isKey$3(value, object) {
+    if (isArray$7(value)) {
+      return false
+    }
+    var type = typeof value
+    if (
+      type == 'number' ||
+      type == 'symbol' ||
+      type == 'boolean' ||
+      value == null ||
+      isSymbol$3(value)
+    ) {
+      return true
+    }
+    return (
+      reIsPlainProp.test(value) ||
+      !reIsDeepProp.test(value) ||
+      (object != null && value in Object(object))
+    )
+  }
+
+  var _isKey = isKey$3
+
+  var MapCache = _MapCache
+
+  /** Error message constants. */
+  var FUNC_ERROR_TEXT = 'Expected a function'
+
+  /**
+   * Creates a function that memoizes the result of `func`. If `resolver` is
+   * provided, it determines the cache key for storing the result based on the
+   * arguments provided to the memoized function. By default, the first argument
+   * provided to the memoized function is used as the map cache key. The `func`
+   * is invoked with the `this` binding of the memoized function.
+   *
+   * **Note:** The cache is exposed as the `cache` property on the memoized
+   * function. Its creation may be customized by replacing the `_.memoize.Cache`
+   * constructor with one whose instances implement the
+   * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
+   * method interface of `clear`, `delete`, `get`, `has`, and `set`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Function
+   * @param {Function} func The function to have its output memoized.
+   * @param {Function} [resolver] The function to resolve the cache key.
+   * @returns {Function} Returns the new memoized function.
+   * @example
+   *
+   * var object = { 'a': 1, 'b': 2 };
+   * var other = { 'c': 3, 'd': 4 };
+   *
+   * var values = _.memoize(_.values);
+   * values(object);
+   * // => [1, 2]
+   *
+   * values(other);
+   * // => [3, 4]
+   *
+   * object.a = 2;
+   * values(object);
+   * // => [1, 2]
+   *
+   * // Modify the result cache.
+   * values.cache.set(object, ['a', 'b']);
+   * values(object);
+   * // => ['a', 'b']
+   *
+   * // Replace `_.memoize.Cache`.
+   * _.memoize.Cache = WeakMap;
+   */
+  function memoize$1(func, resolver) {
+    if (
+      typeof func != 'function' ||
+      (resolver != null && typeof resolver != 'function')
+    ) {
+      throw new TypeError(FUNC_ERROR_TEXT)
+    }
+    var memoized = function () {
+      var args = arguments,
+        key = resolver ? resolver.apply(this, args) : args[0],
+        cache = memoized.cache
+
+      if (cache.has(key)) {
+        return cache.get(key)
+      }
+      var result = func.apply(this, args)
+      memoized.cache = cache.set(key, result) || cache
+      return result
+    }
+    memoized.cache = new (memoize$1.Cache || MapCache)()
+    return memoized
+  }
+
+  // Expose `MapCache`.
+  memoize$1.Cache = MapCache
+
+  var memoize_1 = memoize$1
+
+  var memoize = memoize_1
+
+  /** Used as the maximum memoize cache size. */
+  var MAX_MEMOIZE_SIZE = 500
+
+  /**
+   * A specialized version of `_.memoize` which clears the memoized function's
+   * cache when it exceeds `MAX_MEMOIZE_SIZE`.
+   *
+   * @private
+   * @param {Function} func The function to have its output memoized.
+   * @returns {Function} Returns the new memoized function.
+   */
+  function memoizeCapped$1(func) {
+    var result = memoize(func, function (key) {
+      if (cache.size === MAX_MEMOIZE_SIZE) {
+        cache.clear()
+      }
+      return key
+    })
+
+    var cache = result.cache
+    return result
+  }
+
+  var _memoizeCapped = memoizeCapped$1
+
+  var memoizeCapped = _memoizeCapped
+
+  /** Used to match property names within property paths. */
+  var rePropName =
+    /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g
+
+  /** Used to match backslashes in property paths. */
+  var reEscapeChar = /\\(\\)?/g
+
+  /**
+   * Converts `string` to a property path array.
+   *
+   * @private
+   * @param {string} string The string to convert.
+   * @returns {Array} Returns the property path array.
+   */
+  var stringToPath$1 = memoizeCapped(function (string) {
+    var result = []
+    if (string.charCodeAt(0) === 46 /* . */) {
+      result.push('')
+    }
+    string.replace(rePropName, function (match, number, quote, subString) {
+      result.push(
+        quote ? subString.replace(reEscapeChar, '$1') : number || match
+      )
+    })
+    return result
+  })
+
+  var _stringToPath = stringToPath$1
+
+  var Symbol$2 = _Symbol,
+    arrayMap$2 = _arrayMap,
+    isArray$6 = isArray_1,
+    isSymbol$2 = isSymbol_1
+
+  /** Used as references for various `Number` constants. */
+  var INFINITY$1 = 1 / 0
+
+  /** Used to convert symbols to primitives and strings. */
+  var symbolProto$1 = Symbol$2 ? Symbol$2.prototype : undefined,
+    symbolToString = symbolProto$1 ? symbolProto$1.toString : undefined
+
+  /**
+   * The base implementation of `_.toString` which doesn't convert nullish
+   * values to empty strings.
+   *
+   * @private
+   * @param {*} value The value to process.
+   * @returns {string} Returns the string.
+   */
+  function baseToString$1(value) {
+    // Exit early for strings to avoid a performance hit in some environments.
+    if (typeof value == 'string') {
+      return value
+    }
+    if (isArray$6(value)) {
+      // Recursively convert values (susceptible to call stack limits).
+      return arrayMap$2(value, baseToString$1) + ''
+    }
+    if (isSymbol$2(value)) {
+      return symbolToString ? symbolToString.call(value) : ''
+    }
+    var result = value + ''
+    return result == '0' && 1 / value == -INFINITY$1 ? '-0' : result
+  }
+
+  var _baseToString = baseToString$1
+
+  var baseToString = _baseToString
+
+  /**
+   * Converts `value` to a string. An empty string is returned for `null`
+   * and `undefined` values. The sign of `-0` is preserved.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to convert.
+   * @returns {string} Returns the converted string.
+   * @example
+   *
+   * _.toString(null);
+   * // => ''
+   *
+   * _.toString(-0);
+   * // => '-0'
+   *
+   * _.toString([1, 2, 3]);
+   * // => '1,2,3'
+   */
+  function toString$1(value) {
+    return value == null ? '' : baseToString(value)
+  }
+
+  var toString_1 = toString$1
+
+  var isArray$5 = isArray_1,
+    isKey$2 = _isKey,
+    stringToPath = _stringToPath,
+    toString = toString_1
+
+  /**
+   * Casts `value` to a path array if it's not one.
+   *
+   * @private
+   * @param {*} value The value to inspect.
+   * @param {Object} [object] The object to query keys on.
+   * @returns {Array} Returns the cast property path array.
+   */
+  function castPath$4(value, object) {
+    if (isArray$5(value)) {
+      return value
+    }
+    return isKey$2(value, object) ? [value] : stringToPath(toString(value))
+  }
+
+  var _castPath = castPath$4
+
+  var isSymbol$1 = isSymbol_1
+
+  /** Used as references for various `Number` constants. */
+  var INFINITY = 1 / 0
+
+  /**
+   * Converts `value` to a string key if it's not a string or symbol.
+   *
+   * @private
+   * @param {*} value The value to inspect.
+   * @returns {string|symbol} Returns the key.
+   */
+  function toKey$5(value) {
+    if (typeof value == 'string' || isSymbol$1(value)) {
+      return value
+    }
+    var result = value + ''
+    return result == '0' && 1 / value == -INFINITY ? '-0' : result
+  }
+
+  var _toKey = toKey$5
+
+  var castPath$3 = _castPath,
+    toKey$4 = _toKey
+
+  /**
+   * The base implementation of `_.get` without support for default values.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path of the property to get.
+   * @returns {*} Returns the resolved value.
+   */
+  function baseGet$4(object, path) {
+    path = castPath$3(path, object)
+
+    var index = 0,
+      length = path.length
+
+    while (object != null && index < length) {
+      object = object[toKey$4(path[index++])]
+    }
+    return index && index == length ? object : undefined
+  }
+
+  var _baseGet = baseGet$4
+
+  var Stack$1 = _Stack,
+    baseIsEqual$1 = _baseIsEqual
+
+  /** Used to compose bitmasks for value comparisons. */
+  var COMPARE_PARTIAL_FLAG$1 = 1,
+    COMPARE_UNORDERED_FLAG$1 = 2
+
+  /**
+   * The base implementation of `_.isMatch` without support for iteratee shorthands.
+   *
+   * @private
+   * @param {Object} object The object to inspect.
+   * @param {Object} source The object of property values to match.
+   * @param {Array} matchData The property names, values, and compare flags to match.
+   * @param {Function} [customizer] The function to customize comparisons.
+   * @returns {boolean} Returns `true` if `object` is a match, else `false`.
+   */
+  function baseIsMatch$1(object, source, matchData, customizer) {
+    var index = matchData.length,
+      length = index,
+      noCustomizer = !customizer
+
+    if (object == null) {
+      return !length
+    }
+    object = Object(object)
+    while (index--) {
+      var data = matchData[index]
+      if (
+        noCustomizer && data[2]
+          ? data[1] !== object[data[0]]
+          : !(data[0] in object)
+      ) {
+        return false
+      }
+    }
+    while (++index < length) {
+      data = matchData[index]
+      var key = data[0],
+        objValue = object[key],
+        srcValue = data[1]
+
+      if (noCustomizer && data[2]) {
+        if (objValue === undefined && !(key in object)) {
+          return false
+        }
+      } else {
+        var stack = new Stack$1()
+        if (customizer) {
+          var result = customizer(
+            objValue,
+            srcValue,
+            key,
+            object,
+            source,
+            stack
+          )
+        }
+        if (
+          !(result === undefined
+            ? baseIsEqual$1(
+                srcValue,
+                objValue,
+                COMPARE_PARTIAL_FLAG$1 | COMPARE_UNORDERED_FLAG$1,
+                customizer,
+                stack
+              )
+            : result)
+        ) {
+          return false
+        }
+      }
+    }
+    return true
+  }
+
+  var _baseIsMatch = baseIsMatch$1
+
+  var isObject$4 = isObject_1
+
+  /**
+   * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` if suitable for strict
+   *  equality comparisons, else `false`.
+   */
+  function isStrictComparable$2(value) {
+    return value === value && !isObject$4(value)
+  }
+
+  var _isStrictComparable = isStrictComparable$2
+
+  var isStrictComparable$1 = _isStrictComparable,
+    keys$3 = keys_1
+
+  /**
+   * Gets the property names, values, and compare flags of `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the match data of `object`.
+   */
+  function getMatchData$1(object) {
+    var result = keys$3(object),
+      length = result.length
+
+    while (length--) {
+      var key = result[length],
+        value = object[key]
+
+      result[length] = [key, value, isStrictComparable$1(value)]
+    }
+    return result
+  }
+
+  var _getMatchData = getMatchData$1
+
+  /**
+   * A specialized version of `matchesProperty` for source values suitable
+   * for strict equality comparisons, i.e. `===`.
+   *
+   * @private
+   * @param {string} key The key of the property to get.
+   * @param {*} srcValue The value to match.
+   * @returns {Function} Returns the new spec function.
+   */
+
+  function matchesStrictComparable$2(key, srcValue) {
+    return function (object) {
+      if (object == null) {
+        return false
+      }
+      return (
+        object[key] === srcValue &&
+        (srcValue !== undefined || key in Object(object))
+      )
+    }
+  }
+
+  var _matchesStrictComparable = matchesStrictComparable$2
+
+  var baseIsMatch = _baseIsMatch,
+    getMatchData = _getMatchData,
+    matchesStrictComparable$1 = _matchesStrictComparable
+
+  /**
+   * The base implementation of `_.matches` which doesn't clone `source`.
+   *
+   * @private
+   * @param {Object} source The object of property values to match.
+   * @returns {Function} Returns the new spec function.
+   */
+  function baseMatches$1(source) {
+    var matchData = getMatchData(source)
+    if (matchData.length == 1 && matchData[0][2]) {
+      return matchesStrictComparable$1(matchData[0][0], matchData[0][1])
+    }
+    return function (object) {
+      return object === source || baseIsMatch(object, source, matchData)
+    }
+  }
+
+  var _baseMatches = baseMatches$1
+
+  var baseGet$3 = _baseGet
+
+  /**
+   * Gets the value at `path` of `object`. If the resolved value is
+   * `undefined`, the `defaultValue` is returned in its place.
+   *
+   * @static
+   * @memberOf _
+   * @since 3.7.0
+   * @category Object
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path of the property to get.
+   * @param {*} [defaultValue] The value returned for `undefined` resolved values.
+   * @returns {*} Returns the resolved value.
+   * @example
+   *
+   * var object = { 'a': [{ 'b': { 'c': 3 } }] };
+   *
+   * _.get(object, 'a[0].b.c');
+   * // => 3
+   *
+   * _.get(object, ['a', '0', 'b', 'c']);
+   * // => 3
+   *
+   * _.get(object, 'a.b.c', 'default');
+   * // => 'default'
+   */
+  function get$1(object, path, defaultValue) {
+    var result = object == null ? undefined : baseGet$3(object, path)
+    return result === undefined ? defaultValue : result
+  }
+
+  var get_1 = get$1
+
+  /**
+   * The base implementation of `_.hasIn` without support for deep paths.
+   *
+   * @private
+   * @param {Object} [object] The object to query.
+   * @param {Array|string} key The key to check.
+   * @returns {boolean} Returns `true` if `key` exists, else `false`.
+   */
+
+  function baseHasIn$1(object, key) {
+    return object != null && key in Object(object)
+  }
+
+  var _baseHasIn = baseHasIn$1
+
+  var castPath$2 = _castPath,
+    isArguments = isArguments_1,
+    isArray$4 = isArray_1,
+    isIndex = _isIndex,
+    isLength = isLength_1,
+    toKey$3 = _toKey
+
+  /**
+   * Checks if `path` exists on `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path to check.
+   * @param {Function} hasFunc The function to check properties.
+   * @returns {boolean} Returns `true` if `path` exists, else `false`.
+   */
+  function hasPath$1(object, path, hasFunc) {
+    path = castPath$2(path, object)
+
+    var index = -1,
+      length = path.length,
+      result = false
+
+    while (++index < length) {
+      var key = toKey$3(path[index])
+      if (!(result = object != null && hasFunc(object, key))) {
+        break
+      }
+      object = object[key]
+    }
+    if (result || ++index != length) {
+      return result
+    }
+    length = object == null ? 0 : object.length
+    return (
+      !!length &&
+      isLength(length) &&
+      isIndex(key, length) &&
+      (isArray$4(object) || isArguments(object))
+    )
+  }
+
+  var _hasPath = hasPath$1
+
+  var baseHasIn = _baseHasIn,
+    hasPath = _hasPath
+
+  /**
+   * Checks if `path` is a direct or inherited property of `object`.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Object
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path to check.
+   * @returns {boolean} Returns `true` if `path` exists, else `false`.
+   * @example
+   *
+   * var object = _.create({ 'a': _.create({ 'b': 2 }) });
+   *
+   * _.hasIn(object, 'a');
+   * // => true
+   *
+   * _.hasIn(object, 'a.b');
+   * // => true
+   *
+   * _.hasIn(object, ['a', 'b']);
+   * // => true
+   *
+   * _.hasIn(object, 'b');
+   * // => false
+   */
+  function hasIn$1(object, path) {
+    return object != null && hasPath(object, path, baseHasIn)
+  }
+
+  var hasIn_1 = hasIn$1
+
+  var baseIsEqual = _baseIsEqual,
+    get = get_1,
+    hasIn = hasIn_1,
+    isKey$1 = _isKey,
+    isStrictComparable = _isStrictComparable,
+    matchesStrictComparable = _matchesStrictComparable,
+    toKey$2 = _toKey
+
+  /** Used to compose bitmasks for value comparisons. */
+  var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2
+
+  /**
+   * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
+   *
+   * @private
+   * @param {string} path The path of the property to get.
+   * @param {*} srcValue The value to match.
+   * @returns {Function} Returns the new spec function.
+   */
+  function baseMatchesProperty$1(path, srcValue) {
+    if (isKey$1(path) && isStrictComparable(srcValue)) {
+      return matchesStrictComparable(toKey$2(path), srcValue)
+    }
+    return function (object) {
+      var objValue = get(object, path)
+      return objValue === undefined && objValue === srcValue
+        ? hasIn(object, path)
+        : baseIsEqual(
+            srcValue,
+            objValue,
+            COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG
+          )
+    }
+  }
+
+  var _baseMatchesProperty = baseMatchesProperty$1
+
+  /**
+   * This method returns the first argument it receives.
+   *
+   * @static
+   * @since 0.1.0
+   * @memberOf _
+   * @category Util
+   * @param {*} value Any value.
+   * @returns {*} Returns `value`.
+   * @example
+   *
+   * var object = { 'a': 1 };
+   *
+   * console.log(_.identity(object) === object);
+   * // => true
+   */
+
+  function identity$4(value) {
+    return value
+  }
+
+  var identity_1 = identity$4
+
+  /**
+   * The base implementation of `_.property` without support for deep paths.
+   *
+   * @private
+   * @param {string} key The key of the property to get.
+   * @returns {Function} Returns the new accessor function.
+   */
+
+  function baseProperty$1(key) {
+    return function (object) {
+      return object == null ? undefined : object[key]
+    }
+  }
+
+  var _baseProperty = baseProperty$1
+
+  var baseGet$2 = _baseGet
+
+  /**
+   * A specialized version of `baseProperty` which supports deep paths.
+   *
+   * @private
+   * @param {Array|string} path The path of the property to get.
+   * @returns {Function} Returns the new accessor function.
+   */
+  function basePropertyDeep$1(path) {
+    return function (object) {
+      return baseGet$2(object, path)
+    }
+  }
+
+  var _basePropertyDeep = basePropertyDeep$1
+
+  var baseProperty = _baseProperty,
+    basePropertyDeep = _basePropertyDeep,
+    isKey = _isKey,
+    toKey$1 = _toKey
+
+  /**
+   * Creates a function that returns the value at `path` of a given object.
+   *
+   * @static
+   * @memberOf _
+   * @since 2.4.0
+   * @category Util
+   * @param {Array|string} path The path of the property to get.
+   * @returns {Function} Returns the new accessor function.
+   * @example
+   *
+   * var objects = [
+   *   { 'a': { 'b': 2 } },
+   *   { 'a': { 'b': 1 } }
+   * ];
+   *
+   * _.map(objects, _.property('a.b'));
+   * // => [2, 1]
+   *
+   * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
+   * // => [1, 2]
+   */
+  function property$1(path) {
+    return isKey(path) ? baseProperty(toKey$1(path)) : basePropertyDeep(path)
+  }
+
+  var property_1 = property$1
+
+  var baseMatches = _baseMatches,
+    baseMatchesProperty = _baseMatchesProperty,
+    identity$3 = identity_1,
+    isArray$3 = isArray_1,
+    property = property_1
+
+  /**
+   * The base implementation of `_.iteratee`.
+   *
+   * @private
+   * @param {*} [value=_.identity] The value to convert to an iteratee.
+   * @returns {Function} Returns the iteratee.
+   */
+  function baseIteratee$3(value) {
+    // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
+    // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
+    if (typeof value == 'function') {
+      return value
+    }
+    if (value == null) {
+      return identity$3
+    }
+    if (typeof value == 'object') {
+      return isArray$3(value)
+        ? baseMatchesProperty(value[0], value[1])
+        : baseMatches(value)
+    }
+    return property(value)
+  }
+
+  var _baseIteratee = baseIteratee$3
 
   /**
    * Creates a base function for methods like `_.forIn` and `_.forOwn`.

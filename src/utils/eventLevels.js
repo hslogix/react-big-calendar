@@ -1,5 +1,3 @@
-import findIndex from 'lodash/findIndex'
-
 export function endOfRange({ dateRange, unit = 'day', localizer }) {
   return {
     first: dateRange[0],
@@ -9,17 +7,35 @@ export function endOfRange({ dateRange, unit = 'day', localizer }) {
 
 // properly calculating segments requires working with dates in
 // the timezone we're working with, so we use the localizer
-export function eventSegments(event, range, accessors, localizer) {
-  let { first, last } = endOfRange({ dateRange: range, localizer })
+//
+// `rangeInfo` is an optional `{ first, last, slots }` (see `endOfRange`,
+// plus the `slots` day-diff between them) precomputed by the caller. It's
+// identical for every event sharing the same `range`, so a caller mapping
+// this over many events (DateSlotMetrics) can compute it once instead of
+// paying for `endOfRange`'s `localizer.add` and an extra `localizer.diff`
+// on every single call.
+export function eventSegments(event, range, accessors, localizer, rangeInfo) {
+  let { first, last, slots } =
+    rangeInfo ||
+    (() => {
+      const bounds = endOfRange({ dateRange: range, localizer })
+      return {
+        ...bounds,
+        slots: localizer.diff(bounds.first, bounds.last, 'day'),
+      }
+    })()
 
-  let slots = localizer.diff(first, last, 'day')
   let start = localizer.max(
     localizer.startOf(accessors.start(event), 'day'),
     first
   )
   let end = localizer.min(localizer.ceil(accessors.end(event), 'day'), last)
 
-  let padding = findIndex(range, (x) => localizer.isSameDate(x, start))
+  // `start` is always clamped to be >= `first` (`range[0]`) and both are
+  // day-aligned, so its position within `range` is exactly their day
+  // difference - equivalent to, but far cheaper than, scanning `range`
+  // with a per-day `isSameDate` check.
+  let padding = localizer.diff(first, start, 'day')
   let span = localizer.diff(start, end, 'day')
 
   span = Math.min(span, slots)
@@ -77,25 +93,44 @@ export function segsOverlap(seg, otherSegs) {
 }
 
 export function sortWeekEvents(events, accessors, localizer) {
-  const base = [...events]
-  const multiDayEvents = []
-  const standardEvents = []
-  base.forEach((event) => {
-    const startCheck = accessors.start(event)
-    const endCheck = accessors.end(event)
-    if (localizer.daySpan(startCheck, endCheck) > 1) {
-      multiDayEvents.push(event)
-    } else {
-      standardEvents.push(event)
+  // `localizer.sortEvents` (moment/dayjs/luxon, and the shared default used
+  // by date-fns/globalize) is always built from just `startOf(start, 'day')`
+  // and `daySpan(start, end)`, each of which allocates date-library objects
+  // internally. Calling it as a sort comparator re-derives both for every
+  // pairwise comparison - O(m log m) allocations for a sort of m events.
+  // Decorating each event with those two values once up front (O(m)) and
+  // comparing the plain numbers instead reproduces the exact same ordering
+  // at a fraction of the cost.
+  const decorated = events.map((event) => {
+    const start = accessors.start(event)
+    const end = accessors.end(event)
+    return {
+      event,
+      start,
+      end,
+      allDay: accessors.allDay(event),
+      startOfDay: +localizer.startOf(start, 'day'),
+      daySpan: localizer.daySpan(start, end),
     }
   })
-  const multiSorted = multiDayEvents.sort((a, b) =>
-    sortEvents(a, b, accessors, localizer)
+
+  const multiDayEvents = []
+  const standardEvents = []
+  decorated.forEach((d) =>
+    (d.daySpan > 1 ? multiDayEvents : standardEvents).push(d)
   )
-  const standardSorted = standardEvents.sort((a, b) =>
-    sortEvents(a, b, accessors, localizer)
-  )
-  return [...multiSorted, ...standardSorted]
+
+  const compare = (a, b) =>
+    a.startOfDay - b.startOfDay || // sort by start Day first
+    b.daySpan - a.daySpan || // events spanning multiple days go first
+    !!b.allDay - !!a.allDay || // then allDay single day events
+    +a.start - +b.start || // then sort by start time
+    +a.end - +b.end // then sort by end time
+
+  multiDayEvents.sort(compare)
+  standardEvents.sort(compare)
+
+  return [...multiDayEvents, ...standardEvents].map((d) => d.event)
 }
 
 export function sortEvents(eventA, eventB, accessors, localizer) {

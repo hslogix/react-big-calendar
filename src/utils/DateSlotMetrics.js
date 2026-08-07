@@ -10,9 +10,10 @@ export function getSlotMetrics() {
   return memoize((options) => {
     const { range, events, maxRows, minRows, accessors, localizer } = options
     let { first, last } = endOfRange({ dateRange: range, localizer })
+    let rangeInfo = { first, last, slots: localizer.diff(first, last, 'day') }
 
     let segments = events.map((evt) =>
-      eventSegments(evt, range, accessors, localizer)
+      eventSegments(evt, range, accessors, localizer, rangeInfo)
     )
 
     let { levels, extra } = eventLevels(segments, Math.max(maxRows - 1, 1))

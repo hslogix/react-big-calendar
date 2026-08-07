@@ -51,7 +51,6 @@ import qsa from 'dom-helpers/querySelectorAll'
 import contains from 'dom-helpers/contains'
 import closest from 'dom-helpers/closest'
 import listen from 'dom-helpers/listen'
-import findIndex from 'lodash/findIndex'
 import range$1 from 'lodash/range'
 import getWidth from 'dom-helpers/width'
 import sortBy from 'lodash/sortBy'
@@ -1981,22 +1980,43 @@ function endOfRange(_ref) {
 
 // properly calculating segments requires working with dates in
 // the timezone we're working with, so we use the localizer
-function eventSegments(event, range, accessors, localizer) {
-  var _endOfRange = endOfRange({
-      dateRange: range,
-      localizer: localizer,
-    }),
-    first = _endOfRange.first,
-    last = _endOfRange.last
-  var slots = localizer.diff(first, last, 'day')
+//
+// `rangeInfo` is an optional `{ first, last, slots }` (see `endOfRange`,
+// plus the `slots` day-diff between them) precomputed by the caller. It's
+// identical for every event sharing the same `range`, so a caller mapping
+// this over many events (DateSlotMetrics) can compute it once instead of
+// paying for `endOfRange`'s `localizer.add` and an extra `localizer.diff`
+// on every single call.
+function eventSegments(event, range, accessors, localizer, rangeInfo) {
+  var _ref2 =
+      rangeInfo ||
+      (function () {
+        var bounds = endOfRange({
+          dateRange: range,
+          localizer: localizer,
+        })
+        return _objectSpread(
+          _objectSpread({}, bounds),
+          {},
+          {
+            slots: localizer.diff(bounds.first, bounds.last, 'day'),
+          }
+        )
+      })(),
+    first = _ref2.first,
+    last = _ref2.last,
+    slots = _ref2.slots
   var start = localizer.max(
     localizer.startOf(accessors.start(event), 'day'),
     first
   )
   var end = localizer.min(localizer.ceil(accessors.end(event), 'day'), last)
-  var padding = findIndex(range, function (x) {
-    return localizer.isSameDate(x, start)
-  })
+
+  // `start` is always clamped to be >= `first` (`range[0]`) and both are
+  // day-aligned, so its position within `range` is exactly their day
+  // difference - equivalent to, but far cheaper than, scanning `range`
+  // with a per-day `isSameDate` check.
+  var padding = localizer.diff(first, start, 'day')
   var span = localizer.diff(start, end, 'day')
   span = Math.min(span, slots)
   // The segmentOffset is necessary when adjusting for timezones
@@ -2056,28 +2076,50 @@ function segsOverlap(seg, otherSegs) {
   })
 }
 function sortWeekEvents(events, accessors, localizer) {
-  var base = _toConsumableArray(events)
-  var multiDayEvents = []
-  var standardEvents = []
-  base.forEach(function (event) {
-    var startCheck = accessors.start(event)
-    var endCheck = accessors.end(event)
-    if (localizer.daySpan(startCheck, endCheck) > 1) {
-      multiDayEvents.push(event)
-    } else {
-      standardEvents.push(event)
+  // `localizer.sortEvents` (moment/dayjs/luxon, and the shared default used
+  // by date-fns/globalize) is always built from just `startOf(start, 'day')`
+  // and `daySpan(start, end)`, each of which allocates date-library objects
+  // internally. Calling it as a sort comparator re-derives both for every
+  // pairwise comparison - O(m log m) allocations for a sort of m events.
+  // Decorating each event with those two values once up front (O(m)) and
+  // comparing the plain numbers instead reproduces the exact same ordering
+  // at a fraction of the cost.
+  var decorated = events.map(function (event) {
+    var start = accessors.start(event)
+    var end = accessors.end(event)
+    return {
+      event: event,
+      start: start,
+      end: end,
+      allDay: accessors.allDay(event),
+      startOfDay: +localizer.startOf(start, 'day'),
+      daySpan: localizer.daySpan(start, end),
     }
   })
-  var multiSorted = multiDayEvents.sort(function (a, b) {
-    return sortEvents(a, b, accessors, localizer)
+  var multiDayEvents = []
+  var standardEvents = []
+  decorated.forEach(function (d) {
+    return (d.daySpan > 1 ? multiDayEvents : standardEvents).push(d)
   })
-  var standardSorted = standardEvents.sort(function (a, b) {
-    return sortEvents(a, b, accessors, localizer)
+  var compare = function compare(a, b) {
+    return (
+      a.startOfDay - b.startOfDay ||
+      // sort by start Day first
+      b.daySpan - a.daySpan ||
+      // events spanning multiple days go first
+      !!b.allDay - !!a.allDay ||
+      // then allDay single day events
+      +a.start - +b.start ||
+      // then sort by start time
+      +a.end - +b.end
+    )
+  } // then sort by end time
+
+  multiDayEvents.sort(compare)
+  standardEvents.sort(compare)
+  return [].concat(multiDayEvents, standardEvents).map(function (d) {
+    return d.event
   })
-  return [].concat(
-    _toConsumableArray(multiSorted),
-    _toConsumableArray(standardSorted)
-  )
 }
 function sortEvents(eventA, eventB, accessors, localizer) {
   var evtA = {
@@ -2318,8 +2360,13 @@ function getSlotMetrics$1() {
       }),
       first = _endOfRange.first,
       last = _endOfRange.last
+    var rangeInfo = {
+      first: first,
+      last: last,
+      slots: localizer.diff(first, last, 'day'),
+    }
     var segments = events.map(function (evt) {
-      return eventSegments(evt, range, accessors, localizer)
+      return eventSegments(evt, range, accessors, localizer, rangeInfo)
     })
     var _eventLevels = eventLevels(segments, Math.max(maxRows - 1, 1)),
       levels = _eventLevels.levels,
@@ -2708,16 +2755,48 @@ var DateHeader = function DateHeader(_ref) {
 }
 
 var _excluded$6 = ['date', 'className']
-var eventsForWeek = function eventsForWeek(
-  evts,
-  start,
-  end,
-  accessors,
-  localizer
-) {
-  return evts.filter(function (e) {
-    return inRange(e, start, end, accessors, localizer)
+var DAY_MS = 24 * 60 * 60 * 1000
+
+// Buckets the month's events into weeks in a single pass, rather than
+// scanning the full event list once per week - the previous approach cost
+// events*weeks calls into `inRange`, which is backed by several date-library
+// object allocations per call (moment/dayjs/luxon) and dominates render time
+// once there are a few thousand events.
+//
+// For each event we first do a cheap primitive-timestamp overlap check
+// against every week, padded by a full day to safely absorb any
+// day-boundary/timezone slack in `inRange`'s own (authoritative,
+// day-granularity) semantics - a week can only ever be wrongly *included*
+// as a candidate by this padding, never wrongly excluded, so it's safe to
+// use as a pre-filter. Only candidate weeks that pass it pay for the real
+// `inRange` check.
+function bucketEventsByWeek(events, weeks, accessors, localizer) {
+  var buckets = weeks.map(function () {
+    return []
   })
+  var weekBounds = weeks.map(function (week) {
+    return {
+      from: +week[0] - DAY_MS,
+      to: +week[week.length - 1] + DAY_MS,
+    }
+  })
+  events.forEach(function (event) {
+    var start = +accessors.start(event)
+    var end = +accessors.end(event)
+    for (var w = 0; w < weeks.length; w++) {
+      var _weekBounds$w = weekBounds[w],
+        from = _weekBounds$w.from,
+        to = _weekBounds$w.to
+      if (start > to || end < from) continue
+      var week = weeks[w]
+      if (
+        inRange(event, week[0], week[week.length - 1], accessors, localizer)
+      ) {
+        buckets[w].push(event)
+      }
+    }
+  })
+  return buckets
 }
 
 // `date` and `localizer` don't change identity on every render (`localizer`
@@ -2750,7 +2829,6 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
     }
     _this.renderWeek = function (week, weekIdx) {
       var _this$props = _this.props,
-        events = _this$props.events,
         components = _this$props.components,
         selectable = _this$props.selectable,
         getNow = _this$props.getNow,
@@ -2765,9 +2843,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
         needLimitMeasure = _this$state.needLimitMeasure,
         rowLimit = _this$state.rowLimit
       var sorted = _this.getWeekEventsMemo(weekIdx)(
-        events,
-        week[0],
-        week[week.length - 1],
+        _this._eventsByWeek[weekIdx],
         accessors,
         localizer
       )
@@ -2927,9 +3003,14 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
       return chunk(localizer.visibleDays(date, localizer), 7)
     }, weeksAreEqual)
 
-    // One memoized filter+sort per week row, keyed by week index, since a
-    // single shared memoize-one cache would be invalidated by every other
-    // week's call on the same render pass.
+    // Bucketing (see `bucketEventsByWeek`) runs once for the whole month;
+    // reference equality on `events`/`weeks`/`accessors`/`localizer` (all
+    // already stable across unrelated re-renders) is enough to cache it.
+    _this.getEventsByWeek = memoize(bucketEventsByWeek)
+
+    // One memoized sort per week row, keyed by week index, since a single
+    // shared memoize-one cache would be invalidated by every other week's
+    // call on the same render pass.
     _this._weekEventsMemo = []
     return _this
   }
@@ -2943,17 +3024,11 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           return (
             this._weekEventsMemo[weekIdx] ||
             (this._weekEventsMemo[weekIdx] = memoize(function (
-              events,
-              start,
-              end,
+              weekEvents,
               accessors,
               localizer
             ) {
-              return sortWeekEvents(
-                eventsForWeek(events, start, end, accessors, localizer),
-                accessors,
-                localizer
-              )
+              return sortWeekEvents(weekEvents, accessors, localizer)
             }))
           )
         },
@@ -2964,6 +3039,7 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
           var _this2 = this
           var running
           if (this.state.needLimitMeasure) this.measureRowLimit(this.props)
+          console.info('This is month view ', 1)
           window.addEventListener(
             'resize',
             (this._resizeListener = function () {
@@ -2999,8 +3075,16 @@ var MonthView = /*#__PURE__*/ (function (_React$Component) {
             date = _this$props4.date,
             localizer = _this$props4.localizer,
             className = _this$props4.className,
+            events = _this$props4.events,
+            accessors = _this$props4.accessors,
             weeks = this.getWeeks(date, localizer)
           this._weekCount = weeks.length
+          this._eventsByWeek = this.getEventsByWeek(
+            events,
+            weeks,
+            accessors,
+            localizer
+          )
           return /*#__PURE__*/ React.createElement(
             'div',
             {
