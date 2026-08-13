@@ -23,7 +23,6 @@ import defaults from 'lodash/defaults'
 import mapValues from 'lodash/mapValues'
 import omit from 'lodash/omit'
 import transform from 'lodash/transform'
-import memoize from 'memoize-one'
 import { wrapAccessor } from './utils/accessors'
 
 // Props that feed `Calendar.getContext`. Kept as an explicit allow-list so
@@ -57,7 +56,7 @@ const CONTEXT_PROP_KEYS = [
   'formats',
 ]
 
-function contextPropsAreEqual([nextProps], [prevProps]) {
+function contextPropsAreEqual(nextProps, prevProps) {
   return CONTEXT_PROP_KEYS.every((key) => nextProps[key] === prevProps[key])
 }
 
@@ -957,11 +956,23 @@ class Calendar extends React.Component {
   constructor(...args) {
     super(...args)
 
-    // Memoized per-instance so unrelated re-renders (e.g. opening the
-    // "show more" popup, a resize measurement) reuse the same
-    // accessors/getters/components/localizer objects instead of handing
-    // every view fresh references on every render.
-    this.getContext = memoize(Calendar.getContext, contextPropsAreEqual)
+    this.state = {
+      context: Calendar.getContext(this.props),
+      contextProps: this.props,
+    }
+  }
+
+  // Only rebuilds `state.context` when a prop it's actually derived from
+  // changes, instead of on every render, so unrelated re-renders (e.g.
+  // opening the "show more" popup, a resize measurement) reuse the same
+  // accessors/getters/components/localizer objects handed down to views.
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (contextPropsAreEqual(nextProps, prevState.contextProps)) return null
+
+    return {
+      context: Calendar.getContext(nextProps),
+      contextProps: nextProps,
+    }
   }
 
   static getContext({
@@ -1089,7 +1100,7 @@ class Calendar extends React.Component {
 
     let View = this.getView()
     const { accessors, components, getters, localizer, viewNames } =
-      this.getContext(this.props)
+      this.state.context
 
     let CalToolbar = components.toolbar || Toolbar
     const label = View.title(current, { localizer, length })
